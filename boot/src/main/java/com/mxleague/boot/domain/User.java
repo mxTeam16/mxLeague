@@ -2,7 +2,6 @@ package com.mxleague.boot.domain;
 
 import javax.persistence.*;
 import javax.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlTransient;
 
 @Entity
 @Table(name="users")
@@ -21,8 +20,8 @@ public class User {
 	@Size(min = 0, max = 50)
 	private String name;
 	
-	@XmlTransient
-	@OneToOne(mappedBy = "id_role")
+	@ManyToOne
+	@JoinColumn(name="id_role")
 	private Role role;
 	
 	public User() {

@@ -1,8 +1,11 @@
 package com.mxleague.boot.domain;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
@@ -18,6 +21,9 @@ public class Role {
 	@Column(name = "grant")
 	@Size(min = 0, max = 10)
 	private String grant;
+	
+	@OneToMany(mappedBy = "role")
+	private List<User> usuarios;
 	
 	public Role() {
 	}
