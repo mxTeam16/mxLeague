@@ -4,7 +4,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Size;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", schema="MXLEAGUE")
 public class User {
 
 	@Id
@@ -22,7 +22,6 @@ public class User {
 
 	@ManyToOne
 	@JoinColumn(name = "id_role")
-	@Size(min = 0, max = 20)
 	private Role role;
 
 	@OneToOne(mappedBy = "user")

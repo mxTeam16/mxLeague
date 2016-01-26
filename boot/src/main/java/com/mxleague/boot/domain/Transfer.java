@@ -9,7 +9,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
 @Entity
-@Table(name = "transfers")
+@Table(name = "transfers", schema="MXLEAGUE")
 public class Transfer {
 
 	@Id
@@ -30,7 +30,6 @@ public class Transfer {
 
 	@OneToOne
 	@JoinColumn(name = "id_player")
-	@Size(min = 0, max = 20)
 	private Player player;
 
 	public String getId_transfer() {
