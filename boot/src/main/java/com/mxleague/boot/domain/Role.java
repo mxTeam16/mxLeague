@@ -10,9 +10,9 @@ import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
 @Entity
-@Table(name="roles")
+@Table(name = "roles")
 public class Role {
-	
+
 	@Id
 	@Column(name = "id_role", nullable = false)
 	@Size(min = 0, max = 20)
@@ -21,13 +21,13 @@ public class Role {
 	@Column(name = "grant")
 	@Size(min = 0, max = 10)
 	private String grant;
-	
+
 	@OneToMany(mappedBy = "role")
-	private List<User> usuarios;
-	
+	private List<User> users;
+
 	public Role() {
 	}
-	
+
 	public Role(String id_role, String grant) {
 		this.id_role = id_role;
 		this.grant = grant;
@@ -47,6 +47,17 @@ public class Role {
 
 	public void setGrant(String grant) {
 		this.grant = grant;
+	}
+
+	public void addUser(User user) {
+		users.add(user);
+		if (user.getRole() != this) {
+			user.setRole(this);
+		}
+	}
+
+	public List<User> getUsers() {
+		return users;
 	}
 
 	@Override
