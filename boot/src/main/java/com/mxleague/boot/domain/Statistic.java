@@ -28,6 +28,7 @@ public class Statistic {
 
 	@OneToOne
 	@JoinColumn(name = "id_player")
+	@Size(min = 0, max = 20)
 	private Player player;
 
 	public String getId_statistic() {

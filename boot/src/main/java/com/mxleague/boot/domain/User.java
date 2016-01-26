@@ -22,6 +22,7 @@ public class User {
 
 	@ManyToOne
 	@JoinColumn(name = "id_role")
+	@Size(min = 0, max = 20)
 	private Role role;
 
 	@OneToOne(mappedBy = "user")

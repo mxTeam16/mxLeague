@@ -18,11 +18,11 @@ public class Player {
 	private String id_player;
 
 	@Column(name = "position")
-	@Size(min = 0, max = 500)
+	@Size(min = 0, max = 20)
 	private String position;
 
 	@Column(name = "status")
-	@Size(min = 0, max = 50)
+	@Size(min = 0, max = 20)
 	private String status;
 
 	@OneToOne

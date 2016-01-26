@@ -13,9 +13,9 @@ import javax.validation.constraints.Size;
 public class Board {
 
 	@Id
-	@Column(name = "id_board", nullable = false)
+	@Column(name = "id_employee", nullable = false)
 	@Size(min = 0, max = 20)
-	private String id_board;
+	private String id_employee;
 
 	@Column(name = "job")
 	private String job;
@@ -25,11 +25,11 @@ public class Board {
 	private User user;
 
 	public String getId_board() {
-		return id_board;
+		return id_employee;
 	}
 
-	public void setId_board(String id_board) {
-		this.id_board = id_board;
+	public void setId_board(String id_employee) {
+		this.id_employee = id_employee;
 	}
 
 	public String getJob() {
@@ -51,8 +51,8 @@ public class Board {
 	public Board() {
 	}
 
-	public Board(String id_board, String job, User user) {
-		this.id_board = id_board;
+	public Board(String id_employee, String job, User user) {
+		this.id_employee = id_employee;
 		this.job = job;
 		this.user = user;
 	}
@@ -61,7 +61,7 @@ public class Board {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id_board == null) ? 0 : id_board.hashCode());
+		result = prime * result + ((id_employee == null) ? 0 : id_employee.hashCode());
 		result = prime * result + ((job == null) ? 0 : job.hashCode());
 		result = prime * result + ((user == null) ? 0 : user.hashCode());
 		return result;
@@ -76,10 +76,10 @@ public class Board {
 		if (getClass() != obj.getClass())
 			return false;
 		Board other = (Board) obj;
-		if (id_board == null) {
-			if (other.id_board != null)
+		if (id_employee == null) {
+			if (other.id_employee != null)
 				return false;
-		} else if (!id_board.equals(other.id_board))
+		} else if (!id_employee.equals(other.id_employee))
 			return false;
 		if (job == null) {
 			if (other.job != null)
@@ -96,6 +96,6 @@ public class Board {
 
 	@Override
 	public String toString() {
-		return "Board [id_board=" + id_board + ", job=" + job + ", user=" + user + "]";
+		return "Board [id_employee=" + id_employee + ", job=" + job + ", user=" + user + "]";
 	}
 }

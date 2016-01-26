@@ -21,13 +21,16 @@ public class Transfer {
 	private int amount;
 
 	@Column(name = "teamfrom")
+	@Size(min = 0, max = 20)
 	private String teamfrom;
 
 	@Column(name = "teamto")
+	@Size(min = 0, max = 20)
 	private String teamto;
 
 	@OneToOne
 	@JoinColumn(name = "id_player")
+	@Size(min = 0, max = 20)
 	private Player player;
 
 	public String getId_transfer() {
