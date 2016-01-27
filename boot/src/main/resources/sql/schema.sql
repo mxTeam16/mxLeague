@@ -10,7 +10,7 @@ CREATE TABLE MXLEAGUE.users (
   password VARCHAR(500) NOT NULL,
   name VARCHAR(50) NOT NULL,
   id_role VARCHAR(20) NOT NULL,
-  FOREIGN KEY(id_role) REFERENCES roles(id_role)
+  FOREIGN KEY(id_role) REFERENCES MXLEAGUE.roles(id_role)
 ); 
 
 CREATE TABLE MXLEAGUE.players (
@@ -18,7 +18,7 @@ CREATE TABLE MXLEAGUE.players (
   id_user VARCHAR(20) NOT NULL,
   position VARCHAR(20) DEFAULT NULL,
   status VARCHAR(20) DEFAULT NULL,
-  FOREIGN KEY(id_user) REFERENCES users(id_user)
+  FOREIGN KEY(id_user) REFERENCES MXLEAGUE.users(id_user)
 );
 
 CREATE TABLE MXLEAGUE.statistics (
@@ -27,7 +27,7 @@ CREATE TABLE MXLEAGUE.statistics (
   score INT DEFAULT 0,
   matchesplayed INT DEFAULT 0,
   goals INT DEFAULT 0,
-  FOREIGN KEY(id_player) REFERENCES players(id_player)
+  FOREIGN KEY(id_player) REFERENCES MXLEAGUE.players(id_player)
 );
 
 CREATE TABLE MXLEAGUE.transfers (
@@ -36,12 +36,12 @@ CREATE TABLE MXLEAGUE.transfers (
   amount INT DEFAULT 0,
   teamfrom VARCHAR(20) DEFAULT NULL,
   teamto VARCHAR(20) DEFAULT NULL,
-  FOREIGN KEY(id_player) REFERENCES players(id_player)
+  FOREIGN KEY(id_player) REFERENCES MXLEAGUE.players(id_player)
 );
 
 CREATE TABLE MXLEAGUE.board (
   id_employee VARCHAR(20) NOT NULL PRIMARY KEY,
   id_user VARCHAR(20) NOT NULL,
   job VARCHAR(20) NOT NULL,
-  FOREIGN KEY(id_user) REFERENCES users(id_user)  
+  FOREIGN KEY(id_user) REFERENCES MXLEAGUE.users(id_user)  
 );
