@@ -3,8 +3,10 @@ package com.mxleague.boot.domain;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
-@Table(name = "users")
+@Table(name = "users", schema="MXLEAGUE")
 public class User {
 
 	@Id
@@ -22,12 +24,13 @@ public class User {
 
 	@ManyToOne
 	@JoinColumn(name = "id_role")
-	@Size(min = 0, max = 20)
 	private Role role;
 
+	@JsonIgnore
 	@OneToOne(mappedBy = "user")
 	private Player player;
 
+	@JsonIgnore
 	@OneToOne(mappedBy = "user")
 	private Board board;
 

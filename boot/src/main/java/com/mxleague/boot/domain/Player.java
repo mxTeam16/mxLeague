@@ -8,8 +8,10 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
-@Table(name = "players")
+@Table(name = "players", schema="MXLEAGUE")
 public class Player {
 
 	@Id
@@ -29,9 +31,11 @@ public class Player {
 	@JoinColumn(name = "id_user")
 	private User user;
 
+	@JsonIgnore
 	@OneToOne(mappedBy = "player")
 	private Statistic statistic;
 	
+	@JsonIgnore
 	@OneToOne(mappedBy = "player")
 	private Transfer transfer;
 

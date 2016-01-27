@@ -9,8 +9,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
-@Table(name = "roles")
+@Table(name = "roles", schema="MXLEAGUE")
 public class Role {
 
 	@Id
@@ -22,6 +24,7 @@ public class Role {
 	@Size(min = 0, max = 10)
 	private String grant;
 
+	@JsonIgnore
 	@OneToMany(mappedBy = "role")
 	private List<User> users;
 
