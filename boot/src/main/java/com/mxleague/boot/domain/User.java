@@ -3,11 +3,13 @@ package com.mxleague.boot.domain;
 import javax.persistence.*;
 import javax.validation.constraints.Size;
 
+import org.springframework.hateoas.ResourceSupport;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "users", schema="MXLEAGUE")
-public class User {
+public class User extends ResourceSupport {
 
 	@Id
 	@Column(name = "id_user", nullable = false)

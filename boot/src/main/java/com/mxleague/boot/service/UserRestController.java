@@ -1,7 +1,7 @@
 package com.mxleague.boot.service;
 
-import java.util.List;
-
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -21,6 +21,10 @@ import com.mxleague.boot.repo.UserRepo;
 public class UserRestController {
 	@Autowired
 	UserRepo userRepo;
+	
+	private void updateUserResourcewithLinks(User user){
+		user.add(linkTo(methodOn(UserRestController.class).getAll()).slash(user.getId_user()).withSelfRel());
+	}
 
 	@RequestMapping(method = RequestMethod.OPTIONS)
 	public ResponseEntity<?> getSupportedMethods() {
@@ -28,12 +32,12 @@ public class UserRestController {
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
-	ResponseEntity<?> add(@RequestBody User input) {
+	public ResponseEntity<?> add(@RequestBody User input) {
 		User newUser = userRepo.save(input);
 		return ResponseEntity.status(HttpStatus.CREATED).location(ServletUriComponentsBuilder.fromCurrentRequest()
 				.path("/{id}").buildAndExpand(newUser.getId_user()).toUri()).build();
 	}
-	
+
 	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
 	public ResponseEntity<?> updateAddById(@PathVariable("id") String id, @RequestBody User input) {
 		boolean exists = (userRepo.findOne(id) != null ? true : false);
@@ -56,15 +60,21 @@ public class UserRestController {
 	}
 
 	@RequestMapping(method = RequestMethod.GET)
-	public List<User> getAll() {
-		return (List<User>) userRepo.findAll();
+	public ResponseEntity<Iterable<User>> getAll() {
+		Iterable<User> users = userRepo.findAll();
+		for (User user : users) {
+			updateUserResourcewithLinks(user);
+		}
+		return new ResponseEntity<Iterable<User>>(users, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public User getById(@PathVariable("id") String id) {
-		return userRepo.findOne(id);
+	public ResponseEntity<?> getById(@PathVariable("id") String id) {
+		User user = userRepo.findOne(id);
+		updateUserResourcewithLinks(user);
+		return new ResponseEntity<User>(user, HttpStatus.OK);
 	}
-	
+
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable("id") String id) {
 		User found = userRepo.findOne(id);
