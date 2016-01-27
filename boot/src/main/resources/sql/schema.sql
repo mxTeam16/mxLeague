@@ -1,9 +1,11 @@
-CREATE TABLE roles ( 
+CREATE SCHEMA MXLEAGUE;
+
+CREATE TABLE MXLEAGUE.roles ( 
   id_role VARCHAR(20) NOT NULL PRIMARY KEY, 
   grant VARCHAR(10) NOT NULL
 ); 
 
-CREATE TABLE users ( 
+CREATE TABLE MXLEAGUE.users ( 
   id_user VARCHAR(20) NOT NULL PRIMARY KEY, 
   password VARCHAR(500) NOT NULL,
   name VARCHAR(50) NOT NULL,
@@ -11,7 +13,7 @@ CREATE TABLE users (
   FOREIGN KEY(id_role) REFERENCES roles(id_role)
 ); 
 
-CREATE TABLE players (
+CREATE TABLE MXLEAGUE.players (
   id_player VARCHAR(20) NOT NULL PRIMARY KEY,
   id_user VARCHAR(20) NOT NULL,
   position VARCHAR(20) DEFAULT NULL,
@@ -19,7 +21,8 @@ CREATE TABLE players (
   FOREIGN KEY(id_user) REFERENCES users(id_user)
 );
 
-CREATE TABLE statistics (
+CREATE TABLE MXLEAGUE.statistics (
+  id_statistic VARCHAR(20) NOT NULL PRIMARY KEY,
   id_player VARCHAR(20) NOT NULL,
   score INT DEFAULT 0,
   matchesplayed INT DEFAULT 0,
@@ -27,7 +30,8 @@ CREATE TABLE statistics (
   FOREIGN KEY(id_player) REFERENCES players(id_player)
 );
 
-CREATE TABLE transfers (
+CREATE TABLE MXLEAGUE.transfers (
+  id_transfer VARCHAR(20) NOT NULL PRIMARY KEY,
   id_player VARCHAR(20) NOT NULL,
   amount INT DEFAULT 0,
   teamfrom VARCHAR(20) DEFAULT NULL,
@@ -35,7 +39,8 @@ CREATE TABLE transfers (
   FOREIGN KEY(id_player) REFERENCES players(id_player)
 );
 
-CREATE TABLE board (
+CREATE TABLE MXLEAGUE.board (
+  id_employee VARCHAR(20) NOT NULL PRIMARY KEY,
   id_user VARCHAR(20) NOT NULL,
   job VARCHAR(20) NOT NULL,
   FOREIGN KEY(id_user) REFERENCES users(id_user)  

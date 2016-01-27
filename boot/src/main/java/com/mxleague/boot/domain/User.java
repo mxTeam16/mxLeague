@@ -4,7 +4,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Size;
 
 @Entity
-@Table(name="users")
+@Table(name = "users", schema="MXLEAGUE")
 public class User {
 
 	@Id
@@ -15,15 +15,21 @@ public class User {
 	@Column(name = "password")
 	@Size(min = 0, max = 500)
 	private String password;
-	
+
 	@Column(name = "name")
 	@Size(min = 0, max = 50)
 	private String name;
-	
+
 	@ManyToOne
-	@JoinColumn(name="id_role")
+	@JoinColumn(name = "id_role")
 	private Role role;
-	
+
+	@OneToOne(mappedBy = "user")
+	private Player player;
+
+	@OneToOne(mappedBy = "user")
+	private Board board;
+
 	public User() {
 	}
 
@@ -66,6 +72,27 @@ public class User {
 		this.password = password;
 	}
 
+	public void setPlayer(Player player) {
+		this.player = player;
+		if (player.getUser() != this) {
+			player.setUser(this);
+		}
+	}
+
+	public Player getPlayer() {
+		return player;
+	}
+
+	public void setBoard(Board board) {
+		this.board = board;
+		if (board.getUser() != this) {
+			board.setUser(this);
+		}
+	}
+
+	public Board getBoard() {
+		return board;
+	}
 
 	@Override
 	public int hashCode() {
