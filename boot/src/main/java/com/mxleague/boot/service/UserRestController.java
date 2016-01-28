@@ -2,6 +2,9 @@ package com.mxleague.boot.service;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -13,17 +16,34 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.mxleague.boot.domain.Role;
 import com.mxleague.boot.domain.User;
+import com.mxleague.boot.repo.RoleRepo;
 import com.mxleague.boot.repo.UserRepo;
 
 @RestController
 @RequestMapping("/rest/v1/users")
 public class UserRestController {
 	@Autowired
+	RoleRepo roleRepo;
+	
+	@Autowired
 	UserRepo userRepo;
+	
+	private void updateRolePerUserOnceResourcewithLinks(User user, List<Role> roles){
+		Role role = user.getRole();
+		if(roles.contains(role)){
+			role.add(linkTo(methodOn(RoleRestController.class).getAll()).slash(role.getId_role()).withSelfRel());
+			roles.remove(role);
+		}
+	}
 	
 	private void updateUserResourcewithLinks(User user){
 		user.add(linkTo(methodOn(UserRestController.class).getAll()).slash(user.getId_user()).withSelfRel());
+	}
+	
+	private void updateRoleResourcewithLinks(User user){
+		user.add(linkTo(methodOn(RoleRestController.class).getAll()).slash(user.getRole().getId_role()).withRel("role"));
 	}
 
 	@RequestMapping(method = RequestMethod.OPTIONS)
@@ -62,8 +82,10 @@ public class UserRestController {
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<Iterable<User>> getAll() {
 		Iterable<User> users = userRepo.findAll();
+		List<Role> roles = (List<Role>)roleRepo.findAll();
 		for (User user : users) {
 			updateUserResourcewithLinks(user);
+			updateRolePerUserOnceResourcewithLinks(user,roles);
 		}
 		return new ResponseEntity<Iterable<User>>(users, HttpStatus.OK);
 	}
@@ -72,6 +94,7 @@ public class UserRestController {
 	public ResponseEntity<?> getById(@PathVariable("id") String id) {
 		User user = userRepo.findOne(id);
 		updateUserResourcewithLinks(user);
+		updateRoleResourcewithLinks(user);
 		return new ResponseEntity<User>(user, HttpStatus.OK);
 	}
 
