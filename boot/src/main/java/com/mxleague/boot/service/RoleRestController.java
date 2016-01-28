@@ -25,29 +25,30 @@ import com.mxleague.boot.domain.User;
 import com.mxleague.boot.repo.RoleRepo;
 import com.mxleague.boot.repo.UserRepo;
 
-@RestController 
+@RestController
 @RequestMapping("/rest/v1/roles")
 public class RoleRestController {
 	@Autowired
 	RoleRepo roleRepo;
-	
+
 	@Autowired
 	UserRepo userRepo;
-	
-	private void updateRolePerUserOnceResourcewithLinks(Role role, List<Role> roles){
-		if(roles.contains(role)){
+
+	private void updateRolePerUserOnceResourcewithLinks(Role role, List<Role> roles) {
+		if (roles.contains(role)) {
 			role.add(linkTo(methodOn(RoleRestController.class).getAll()).slash(role.getId_role()).withSelfRel());
 			roles.remove(role);
 		}
 	}
-	
-	private void updateRoleResourcewithLinks(Role role){
+
+	private void updateRoleResourcewithLinks(Role role) {
 		role.add(linkTo(methodOn(RoleRestController.class).getAll()).slash(role.getId_role()).withSelfRel());
 		role.add(linkTo(methodOn(RoleRestController.class).getUsersByRole(role.getId_role())).withRel("users"));
 	}
-	
-	private void updateUserResourcewithLinks(User user){
-		user.add(linkTo(methodOn(RoleRestController.class).getAll()).slash("admin").slash("users").slash(user.getId_user()).withSelfRel());
+
+	private void updateUserResourcewithLinks(User user) {
+		user.add(linkTo(methodOn(RoleRestController.class).getAll()).slash("admin").slash("users")
+				.slash(user.getId_user()).withSelfRel());
 	}
 
 	@RequestMapping(method = RequestMethod.OPTIONS)
@@ -82,28 +83,31 @@ public class RoleRestController {
 		Iterable<Role> roles = roleRepo.findAll();
 		for (Role role : roles) {
 			updateRoleResourcewithLinks(role);
-		} 
+		}
 		return new ResponseEntity<Iterable<Role>>(roles, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> getById(@PathVariable("id") String id) {
 		Role role = roleRepo.findOne(id);
-		updateRoleResourcewithLinks(role);
-		return new ResponseEntity<Role>(role, HttpStatus.OK);
+		if (role != null) {
+			updateRoleResourcewithLinks(role);
+			return new ResponseEntity<Role>(role, HttpStatus.OK);
+		} else
+			return new ResponseEntity<Role>(role, HttpStatus.NO_CONTENT);
 	}
-	
+
 	@RequestMapping(value = "/{id}/users", method = RequestMethod.GET)
 	public ResponseEntity<Iterable<User>> getUsersByRole(@PathVariable("id") String id) {
 		Iterable<User> users = userRepo.findById_RoleCaseInsensitive(id);
-		List<Role> roles = (List<Role>)roleRepo.findAll();
+		List<Role> roles = (List<Role>) roleRepo.findAll();
 		for (User user : users) {
 			updateUserResourcewithLinks(user);
-			updateRolePerUserOnceResourcewithLinks(user.getRole(),roles);
+			updateRolePerUserOnceResourcewithLinks(user.getRole(), roles);
 		}
 		return new ResponseEntity<Iterable<User>>(users, HttpStatus.OK);
 	}
-	
+
 	@RequestMapping(value = "/{roleId}/users/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> getEmployeesById(@PathVariable("id") String id) {
 		User user = userRepo.findOne(id);

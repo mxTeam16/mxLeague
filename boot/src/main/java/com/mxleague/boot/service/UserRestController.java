@@ -26,24 +26,25 @@ import com.mxleague.boot.repo.UserRepo;
 public class UserRestController {
 	@Autowired
 	RoleRepo roleRepo;
-	
+
 	@Autowired
 	UserRepo userRepo;
-	
-	private void updateRolePerUserOnceResourcewithLinks(User user, List<Role> roles){
+
+	private void updateRolePerUserOnceResourcewithLinks(User user, List<Role> roles) {
 		Role role = user.getRole();
-		if(roles.contains(role)){
+		if (roles.contains(role)) {
 			role.add(linkTo(methodOn(RoleRestController.class).getAll()).slash(role.getId_role()).withSelfRel());
 			roles.remove(role);
 		}
 	}
-	
-	private void updateUserResourcewithLinks(User user){
+
+	private void updateUserResourcewithLinks(User user) {
 		user.add(linkTo(methodOn(UserRestController.class).getAll()).slash(user.getId_user()).withSelfRel());
 	}
-	
-	private void updateRoleResourcewithLinks(User user){
-		user.add(linkTo(methodOn(RoleRestController.class).getAll()).slash(user.getRole().getId_role()).withSelfRel());
+
+	private void updateRoleResourcewithLinks(User user) {
+		user.getRole().add(
+				linkTo(methodOn(RoleRestController.class).getAll()).slash(user.getRole().getId_role()).withSelfRel());
 	}
 
 	@RequestMapping(method = RequestMethod.OPTIONS)
@@ -82,20 +83,24 @@ public class UserRestController {
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<Iterable<User>> getAll() {
 		Iterable<User> users = userRepo.findAll();
-		List<Role> roles = (List<Role>)roleRepo.findAll();
+		List<Role> roles = (List<Role>) roleRepo.findAll();
 		for (User user : users) {
 			updateUserResourcewithLinks(user);
-			updateRolePerUserOnceResourcewithLinks(user,roles);
+			updateRolePerUserOnceResourcewithLinks(user, roles);
 		}
 		return new ResponseEntity<Iterable<User>>(users, HttpStatus.OK);
 	}
-	
+
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> getById(@PathVariable("id") String id) {
 		User user = userRepo.findOne(id);
-		updateUserResourcewithLinks(user);
-		updateRoleResourcewithLinks(user);
-		return new ResponseEntity<User>(user, HttpStatus.OK);
+		if (user != null) {
+			updateUserResourcewithLinks(user);
+			updateRoleResourcewithLinks(user);
+			return new ResponseEntity<User>(user, HttpStatus.OK);
+		} else
+			return new ResponseEntity<User>(user, HttpStatus.NO_CONTENT);
+
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
