@@ -47,7 +47,7 @@ public class RoleRestController {
 	}
 
 	private void updateUserResourcewithLinks(User user) {
-		user.add(linkTo(methodOn(RoleRestController.class).getAll()).slash("admin").slash("users")
+		user.add(linkTo(methodOn(RoleRestController.class).getAll()).slash(user.getRole().getId_role()).slash("users")
 				.slash(user.getId_user()).withSelfRel());
 	}
 
