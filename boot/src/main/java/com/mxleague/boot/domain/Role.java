@@ -9,11 +9,13 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import org.springframework.hateoas.ResourceSupport;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "roles", schema="MXLEAGUE")
-public class Role {
+public class Role extends ResourceSupport {
 
 	@Id
 	@Column(name = "id_role", nullable = false)

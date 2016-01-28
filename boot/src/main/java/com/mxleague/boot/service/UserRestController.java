@@ -56,7 +56,7 @@ public class UserRestController {
 			return ResponseEntity.ok().body("User succesfully updated");
 		else
 			return ResponseEntity.status(201).location(ServletUriComponentsBuilder.fromCurrentContextPath()
-					.path("/v1/employees/{id}").buildAndExpand(newUser.getId_user()).toUri()).build();
+					.path("/rest/v1/users/{id}").buildAndExpand(newUser.getId_user()).toUri()).build();
 	}
 
 	@RequestMapping(method = RequestMethod.GET)
@@ -67,7 +67,7 @@ public class UserRestController {
 		}
 		return new ResponseEntity<Iterable<User>>(users, HttpStatus.OK);
 	}
-
+	
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> getById(@PathVariable("id") String id) {
 		User user = userRepo.findOne(id);
