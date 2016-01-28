@@ -19,7 +19,7 @@ public class Role extends ResourceSupport {
 
 	@Id
 	@Column(name = "id_role", nullable = false)
-	@Size(min = 0, max = 20)
+	@Size(min = 0, max = 20) 
 	private String id_role;
 
 	@Column(name = "grant")

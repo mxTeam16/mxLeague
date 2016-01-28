@@ -43,7 +43,7 @@ public class UserRestController {
 	}
 	
 	private void updateRoleResourcewithLinks(User user){
-		user.add(linkTo(methodOn(RoleRestController.class).getAll()).slash(user.getRole().getId_role()).withRel("role"));
+		user.add(linkTo(methodOn(RoleRestController.class).getAll()).slash(user.getRole().getId_role()).withSelfRel());
 	}
 
 	@RequestMapping(method = RequestMethod.OPTIONS)

@@ -11,5 +11,5 @@ public interface UserRepo extends CrudRepository<User, String> {
 	
 	@Query("SELECT u FROM User u WHERE LOWER(u.role) = LOWER(?1)")
 	List<User> findById_RoleCaseInsensitive(String id_role);
-	
+	 
 }

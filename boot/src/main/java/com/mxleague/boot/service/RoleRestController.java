@@ -25,7 +25,7 @@ import com.mxleague.boot.domain.User;
 import com.mxleague.boot.repo.RoleRepo;
 import com.mxleague.boot.repo.UserRepo;
 
-@RestController
+@RestController 
 @RequestMapping("/rest/v1/roles")
 public class RoleRestController {
 	@Autowired
