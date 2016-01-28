@@ -52,6 +52,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
+		<!-- REST HATEOAS -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-hateoas</artifactId>
+			<version>1.2.2.RELEASE</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
