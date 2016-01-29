@@ -8,11 +8,13 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import org.springframework.hateoas.ResourceSupport;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "players", schema="MXLEAGUE")
-public class Player {
+public class Player extends ResourceSupport {
 
 	@Id
 	@Column(name = "id_player", nullable = false)
