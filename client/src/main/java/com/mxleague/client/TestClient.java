@@ -1,6 +1,5 @@
 package com.mxleague.client;
 
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
