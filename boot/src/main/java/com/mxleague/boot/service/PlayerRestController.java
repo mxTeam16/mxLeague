@@ -3,8 +3,6 @@ package com.mxleague.boot.service;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -19,7 +17,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.mxleague.boot.domain.Player;
 import com.mxleague.boot.domain.User;
 import com.mxleague.boot.repo.PlayerRepo;
-import com.mxleague.boot.repo.RoleRepo;
 import com.mxleague.boot.repo.UserRepo;
 
 @RestController
@@ -27,9 +24,6 @@ import com.mxleague.boot.repo.UserRepo;
 public class PlayerRestController {
 	@Autowired
 	PlayerRepo playerRepo;
-	
-	@Autowired
-	RoleRepo roleRepo;
 
 	@Autowired
 	UserRepo userRepo;
@@ -95,8 +89,9 @@ public class PlayerRestController {
 	}
 
 	@RequestMapping(value = "/{playerId}/{userId}", method = RequestMethod.GET)
-	public ResponseEntity<User> getUserByPlayer(@PathVariable("playerId") String playerId, @PathVariable("userId") String userId) {
-		User user = userRepo.findById_UserAndId_PlayerCaseInsensitive(playerId, userId);
+	public ResponseEntity<User> getUserByPlayer(@PathVariable("playerId") String playerId,
+			@PathVariable("userId") String userId) {
+		User user = userRepo.findById_UserAndId_PlayerCaseInsensitive(userId, playerId);
 		if (user != null) {
 			updatePlayerResourcewithLinks(user.getPlayer());
 			updateUserResourcewithLinks(user);

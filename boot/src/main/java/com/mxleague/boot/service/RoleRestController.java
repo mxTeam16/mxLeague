@@ -104,9 +104,10 @@ public class RoleRestController {
 		return new ResponseEntity<Iterable<User>>(users, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/{roleId}/users/{id}", method = RequestMethod.GET)
-	public ResponseEntity<?> getEmployeesById(@PathVariable("id") String id) {
-		User user = userRepo.findOne(id);
+	@RequestMapping(value = "/{roleId}/users/{userId}", method = RequestMethod.GET)
+	public ResponseEntity<?> getEmployeesById(@PathVariable("roleId") String roleId,
+			@PathVariable("userId") String userId) {
+		User user = userRepo.findById_UserAndId_RoleCaseInsensitive(userId, roleId);
 		updateUserResourcewithLinks(user);
 		return new ResponseEntity<User>(user, HttpStatus.OK);
 	}

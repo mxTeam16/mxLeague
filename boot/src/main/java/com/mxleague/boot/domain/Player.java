@@ -13,7 +13,7 @@ import org.springframework.hateoas.ResourceSupport;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "players", schema="MXLEAGUE")
+@Table(name = "players", schema = "MXLEAGUE")
 public class Player extends ResourceSupport {
 
 	@Id
@@ -36,7 +36,7 @@ public class Player extends ResourceSupport {
 	@JsonIgnore
 	@OneToOne(mappedBy = "player")
 	private Statistic statistic;
-	
+
 	@JsonIgnore
 	@OneToOne(mappedBy = "player")
 	private Transfer transfer;
