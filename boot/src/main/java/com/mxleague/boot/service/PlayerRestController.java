@@ -3,6 +3,8 @@ package com.mxleague.boot.service;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -15,8 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.mxleague.boot.domain.Player;
+import com.mxleague.boot.domain.Role;
 import com.mxleague.boot.domain.User;
 import com.mxleague.boot.repo.PlayerRepo;
+import com.mxleague.boot.repo.RoleRepo;
 import com.mxleague.boot.repo.UserRepo;
 
 @RestController
@@ -27,13 +31,32 @@ public class PlayerRestController {
 
 	@Autowired
 	UserRepo userRepo;
+	
+	@Autowired
+	RoleRepo roleRepo;
 
 	private void updatePlayerResourcewithLinks(Player player) {
 		player.add(linkTo(methodOn(PlayerRestController.class).getAll()).slash(player.getId_player()).withSelfRel());
 	}
 
-	private void updateUserResourcewithLinks(User user) {
+	private void updateUserPerPlayerResourcewithLinks(User user) {
 		user.add(linkTo(methodOn(PlayerRestController.class).getAll()).slash(user.getId_user()).withSelfRel());
+	}
+	
+	private void updateUserResourcewithLinks(User user) {
+		user.add(linkTo(methodOn(UserRestController.class).getAll()).slash(user.getId_user()).withSelfRel());
+	}
+	
+	private void updateRolePerUserOnceResourcewithLinks(Role role, List<Role> roles) {
+		if (roles.contains(role)) {
+			role.add(linkTo(methodOn(RoleRestController.class).getAll()).slash(role.getId_role()).withSelfRel());
+			roles.remove(role);
+		}
+	}
+	
+	private void updateRoleResourcewithLinks(User user) {
+		user.getRole().add(
+				linkTo(methodOn(RoleRestController.class).getAll()).slash(user.getRole().getId_role()).withSelfRel());
 	}
 
 	@RequestMapping(method = RequestMethod.OPTIONS)
@@ -66,8 +89,11 @@ public class PlayerRestController {
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<Iterable<Player>> getAll() {
 		Iterable<Player> players = playerRepo.findAll();
+		List<Role> roles = (List<Role>) roleRepo.findAll();
 		for (Player player : players) {
 			updatePlayerResourcewithLinks(player);
+			updateUserResourcewithLinks(player.getUser());
+			updateRolePerUserOnceResourcewithLinks(player.getUser().getRole(), roles);
 		}
 		return new ResponseEntity<Iterable<Player>>(players, HttpStatus.OK);
 	}
@@ -77,6 +103,8 @@ public class PlayerRestController {
 		Player player = playerRepo.findOne(id);
 		if (player != null) {
 			updatePlayerResourcewithLinks(player);
+			updateUserResourcewithLinks(player.getUser());
+			updateRoleResourcewithLinks(player.getUser());
 			return new ResponseEntity<Player>(player, HttpStatus.OK);
 		} else
 			return new ResponseEntity<Player>(player, HttpStatus.NO_CONTENT);
@@ -88,7 +116,7 @@ public class PlayerRestController {
 		User user = userRepo.findById_UserAndId_PlayerCaseInsensitive(userId, playerId);
 		if (user != null) {
 			updatePlayerResourcewithLinks(user.getPlayer());
-			updateUserResourcewithLinks(user);
+			updateUserPerPlayerResourcewithLinks(user);
 			return new ResponseEntity<User>(user, HttpStatus.OK);
 		} else
 			return new ResponseEntity<User>(user, HttpStatus.NO_CONTENT);
