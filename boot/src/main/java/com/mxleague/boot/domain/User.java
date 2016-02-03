@@ -7,8 +7,8 @@ import org.springframework.hateoas.ResourceSupport;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@Entity 
-@Table(name = "users", schema="MXLEAGUE")
+@Entity
+@Table(name = "users", schema = "MXLEAGUE")
 public class User extends ResourceSupport {
 
 	@Id

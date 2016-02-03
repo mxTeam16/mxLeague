@@ -14,26 +14,26 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.mxleague.boot.domain.Player;
+import com.mxleague.boot.domain.Board;
 import com.mxleague.boot.domain.User;
-import com.mxleague.boot.repo.PlayerRepo;
+import com.mxleague.boot.repo.BoardRepo;
 import com.mxleague.boot.repo.UserRepo;
 
 @RestController
-@RequestMapping("/rest/v1/players")
-public class PlayerRestController {
+@RequestMapping("/rest/v1/board")
+public class BoardRestController {
 	@Autowired
-	PlayerRepo playerRepo;
+	BoardRepo boardRepo;
 
 	@Autowired
 	UserRepo userRepo;
 
-	private void updatePlayerResourcewithLinks(Player player) {
-		player.add(linkTo(methodOn(PlayerRestController.class).getAll()).slash(player.getId_player()).withSelfRel());
+	private void updateBoardResourcewithLinks(Board member) {
+		member.add(linkTo(methodOn(BoardRestController.class).getAll()).slash(member.getId_board()).withSelfRel());
 	}
 
 	private void updateUserResourcewithLinks(User user) {
-		user.add(linkTo(methodOn(PlayerRestController.class).getAll()).slash(user.getId_user()).withSelfRel());
+		user.add(linkTo(methodOn(BoardRestController.class).getAll()).slash(user.getId_user()).withSelfRel());
 	}
 
 	@RequestMapping(method = RequestMethod.OPTIONS)
@@ -42,52 +42,55 @@ public class PlayerRestController {
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<?> add(@RequestBody Player input) {
-		Player newPlayer = playerRepo.save(input);
+	public ResponseEntity<?> add(@RequestBody Board input) {
+		Board newMember = boardRepo.save(input);
 		return ResponseEntity.status(HttpStatus.CREATED).location(ServletUriComponentsBuilder.fromCurrentRequest()
-				.path("/{id}").buildAndExpand(newPlayer.getId_player()).toUri()).build();
+				.path("/{id}").buildAndExpand(newMember.getId_board()).toUri()).build();
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<?> updateAddById(@PathVariable("id") String id, @RequestBody Player input) {
-		boolean exists = (playerRepo.findOne(id) != null ? true : false);
+	public ResponseEntity<?> updateAddById(@PathVariable("id") String id, @RequestBody Board input) {
+		boolean exists = (boardRepo.findOne(id) != null ? true : false);
 		if (input.getUser() == null) {
 			return ResponseEntity.status(400).body("Please provide the user !!");
 		}
-		input.setId_player(id);
-		Player newPlayer = playerRepo.save(input);
+		if (input.getJob() == null) {
+			return ResponseEntity.status(400).body("Please provide the job !!");
+		}
+		input.setId_board(id);
+		Board newMember = boardRepo.save(input);
 		if (exists)
-			return ResponseEntity.ok().body("Player succesfully updated");
+			return ResponseEntity.ok().body("Member of Board succesfully updated");
 		else
 			return ResponseEntity.status(201).location(ServletUriComponentsBuilder.fromCurrentContextPath()
-					.path("/rest/v1/players/{id}").buildAndExpand(newPlayer.getId_player()).toUri()).build();
+					.path("/rest/v1/board/{id}").buildAndExpand(newMember.getId_board()).toUri()).build();
 	}
 
 	@RequestMapping(method = RequestMethod.GET)
-	public ResponseEntity<Iterable<Player>> getAll() {
-		Iterable<Player> players = playerRepo.findAll();
-		for (Player player : players) {
-			updatePlayerResourcewithLinks(player);
+	public ResponseEntity<Iterable<Board>> getAll() {
+		Iterable<Board> board = boardRepo.findAll();
+		for (Board member : board) {
+			updateBoardResourcewithLinks(member);
 		}
-		return new ResponseEntity<Iterable<Player>>(players, HttpStatus.OK);
+		return new ResponseEntity<Iterable<Board>>(board, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<Player> getById(@PathVariable("id") String id) {
-		Player player = playerRepo.findOne(id);
-		if (player != null) {
-			updatePlayerResourcewithLinks(player);
-			return new ResponseEntity<Player>(player, HttpStatus.OK);
+	public ResponseEntity<Board> getById(@PathVariable("id") String id) {
+		Board member = boardRepo.findOne(id);
+		if (member != null) {
+			updateBoardResourcewithLinks(member);
+			return new ResponseEntity<Board>(member, HttpStatus.OK);
 		} else
-			return new ResponseEntity<Player>(player, HttpStatus.NO_CONTENT);
+			return new ResponseEntity<Board>(member, HttpStatus.NO_CONTENT);
 	}
 
-	@RequestMapping(value = "/{playerId}/{userId}", method = RequestMethod.GET)
-	public ResponseEntity<User> getUserByPlayer(@PathVariable("playerId") String playerId,
+	@RequestMapping(value = "/{boardId}/{userId}", method = RequestMethod.GET)
+	public ResponseEntity<User> getUserByBoard(@PathVariable("boardId") String boardId,
 			@PathVariable("userId") String userId) {
-		User user = userRepo.findById_UserAndId_PlayerCaseInsensitive(userId, playerId);
+		User user = userRepo.findById_UserAndId_BoardCaseInsensitive(userId, boardId);
 		if (user != null) {
-			updatePlayerResourcewithLinks(user.getPlayer());
+			updateBoardResourcewithLinks(user.getBoard());
 			updateUserResourcewithLinks(user);
 			return new ResponseEntity<User>(user, HttpStatus.OK);
 		} else
@@ -96,10 +99,10 @@ public class PlayerRestController {
 
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete(@PathVariable("id") String id) {
-		Player found = playerRepo.findOne(id);
+		Board found = boardRepo.findOne(id);
 		if (found != null) {
-			playerRepo.delete(found);
-			return ResponseEntity.ok().body("Player " + id + " succesfully deleted");
+			boardRepo.delete(found);
+			return ResponseEntity.ok().body("Member of Board " + id + " succesfully deleted");
 		} else
 			return ResponseEntity.status(204).build();
 	}

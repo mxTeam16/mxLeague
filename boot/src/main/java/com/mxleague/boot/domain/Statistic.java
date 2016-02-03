@@ -8,9 +8,11 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
+import org.springframework.hateoas.ResourceSupport;
+
 @Entity
-@Table(name = "statistics", schema="MXLEAGUE")
-public class Statistic {
+@Table(name = "statistics", schema = "MXLEAGUE")
+public class Statistic extends ResourceSupport {
 
 	@Id
 	@Column(name = "id_statistic", nullable = false)
