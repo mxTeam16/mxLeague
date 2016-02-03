@@ -3,6 +3,7 @@ package com.mxleague.boot.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
@@ -45,10 +46,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		     .and()
 	      .authorizeRequests()
 	         .expressionHandler(webExpressionHandler())
+	         .antMatchers(HttpMethod.GET, "/rest/**")
+	         .authenticated()
 	         .antMatchers("/rest/**")
-	         .permitAll()
+	         .hasAuthority("R/W")	         
 	         .antMatchers("**")
-             .hasAuthority("R");
+             .hasAuthority("R/W/X")
+             .and()
+          .httpBasic();
 	}
 
 	@Autowired
