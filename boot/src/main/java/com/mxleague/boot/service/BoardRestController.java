@@ -3,6 +3,8 @@ package com.mxleague.boot.service;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -15,8 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.mxleague.boot.domain.Board;
+import com.mxleague.boot.domain.Role;
 import com.mxleague.boot.domain.User;
 import com.mxleague.boot.repo.BoardRepo;
+import com.mxleague.boot.repo.RoleRepo;
 import com.mxleague.boot.repo.UserRepo;
 
 @RestController
@@ -27,13 +31,32 @@ public class BoardRestController {
 
 	@Autowired
 	UserRepo userRepo;
+	
+	@Autowired
+	RoleRepo roleRepo;
 
 	private void updateBoardResourcewithLinks(Board member) {
 		member.add(linkTo(methodOn(BoardRestController.class).getAll()).slash(member.getId_board()).withSelfRel());
 	}
 
-	private void updateUserResourcewithLinks(User user) {
+	private void updateUserPerMemberOfBoardResourcewithLinks(User user) {
 		user.add(linkTo(methodOn(BoardRestController.class).getAll()).slash(user.getId_user()).withSelfRel());
+	}
+	
+	private void updateUserResourcewithLinks(User user) {
+		user.add(linkTo(methodOn(UserRestController.class).getAll()).slash(user.getId_user()).withSelfRel());
+	}
+	
+	private void updateRolePerUserOnceResourcewithLinks(Role role, List<Role> roles) {
+		if (roles.contains(role)) {
+			role.add(linkTo(methodOn(RoleRestController.class).getAll()).slash(role.getId_role()).withSelfRel());
+			roles.remove(role);
+		}
+	}
+	
+	private void updateRoleResourcewithLinks(User user) {
+		user.getRole().add(
+				linkTo(methodOn(RoleRestController.class).getAll()).slash(user.getRole().getId_role()).withSelfRel());
 	}
 
 	@RequestMapping(method = RequestMethod.OPTIONS)
@@ -69,8 +92,11 @@ public class BoardRestController {
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<Iterable<Board>> getAll() {
 		Iterable<Board> board = boardRepo.findAll();
+		List<Role> roles = (List<Role>) roleRepo.findAll();
 		for (Board member : board) {
 			updateBoardResourcewithLinks(member);
+			updateUserResourcewithLinks(member.getUser());
+			updateRolePerUserOnceResourcewithLinks(member.getUser().getRole(), roles);
 		}
 		return new ResponseEntity<Iterable<Board>>(board, HttpStatus.OK);
 	}
@@ -80,6 +106,8 @@ public class BoardRestController {
 		Board member = boardRepo.findOne(id);
 		if (member != null) {
 			updateBoardResourcewithLinks(member);
+			updateUserResourcewithLinks(member.getUser());
+			updateRoleResourcewithLinks(member.getUser());
 			return new ResponseEntity<Board>(member, HttpStatus.OK);
 		} else
 			return new ResponseEntity<Board>(member, HttpStatus.NO_CONTENT);
@@ -91,7 +119,7 @@ public class BoardRestController {
 		User user = userRepo.findById_UserAndId_BoardCaseInsensitive(userId, boardId);
 		if (user != null) {
 			updateBoardResourcewithLinks(user.getBoard());
-			updateUserResourcewithLinks(user);
+			updateUserPerMemberOfBoardResourcewithLinks(user);
 			return new ResponseEntity<User>(user, HttpStatus.OK);
 		} else
 			return new ResponseEntity<User>(user, HttpStatus.NO_CONTENT);
