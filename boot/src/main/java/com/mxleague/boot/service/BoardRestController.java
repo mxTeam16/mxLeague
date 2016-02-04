@@ -40,7 +40,7 @@ public class BoardRestController {
 	}
 
 	private void updateUserPerMemberOfBoardResourcewithLinks(User user) {
-		user.add(linkTo(methodOn(BoardRestController.class).getAll()).slash(user.getId_user()).withSelfRel());
+		user.add(linkTo(methodOn(BoardRestController.class).getAll()).slash(user.getBoard().getId_board()).slash(user.getId_user()).withSelfRel());
 	}
 	
 	private void updateUserResourcewithLinks(User user) {
@@ -118,8 +118,8 @@ public class BoardRestController {
 			@PathVariable("userId") String userId) {
 		User user = userRepo.findById_UserAndId_BoardCaseInsensitive(userId, boardId);
 		if (user != null) {
-			updateBoardResourcewithLinks(user.getBoard());
 			updateUserPerMemberOfBoardResourcewithLinks(user);
+			updateRoleResourcewithLinks(user);
 			return new ResponseEntity<User>(user, HttpStatus.OK);
 		} else
 			return new ResponseEntity<User>(user, HttpStatus.NO_CONTENT);

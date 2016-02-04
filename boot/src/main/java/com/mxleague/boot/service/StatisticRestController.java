@@ -3,6 +3,8 @@ package com.mxleague.boot.service;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -15,9 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.mxleague.boot.domain.Statistic;
+import com.mxleague.boot.domain.User;
 import com.mxleague.boot.domain.Player;
+import com.mxleague.boot.domain.Role;
 import com.mxleague.boot.repo.StatisticRepo;
+import com.mxleague.boot.repo.UserRepo;
 import com.mxleague.boot.repo.PlayerRepo;
+import com.mxleague.boot.repo.RoleRepo;
 
 @RestController
 @RequestMapping("/rest/v1/statistics")
@@ -27,16 +33,42 @@ public class StatisticRestController {
 
 	@Autowired
 	PlayerRepo playerRepo;
+	
+	@Autowired
+	UserRepo userRepo;
+	
+	@Autowired
+	RoleRepo roleRepo;
 
 	private void updateStatisticResourcewithLinks(Statistic statistic) {
 		statistic.add(linkTo(methodOn(StatisticRestController.class).getAll()).slash(statistic.getId_statistic())
 				.withSelfRel());
 	}
 
-	private void updatePlayerResourcewithLinks(Player player) {
-		player.add(linkTo(methodOn(StatisticRestController.class).getAll()).slash(player.getId_player()).withSelfRel());
+	private void updatePlayerPerStatisticResourcewithLinks(Player player) {
+		player.add(linkTo(methodOn(StatisticRestController.class).getAll()).slash(player.getStatistic().getId_statistic()).slash(player.getId_player()).withSelfRel());
 	}
-
+	
+	private void updatePlayerResourcewithLinks(Player player) {
+		player.add(linkTo(methodOn(PlayerRestController.class).getAll()).slash(player.getId_player()).withSelfRel());
+	}
+	
+	private void updateUserResourcewithLinks(User user) {
+		user.add(linkTo(methodOn(UserRestController.class).getAll()).slash(user.getId_user()).withSelfRel());
+	}
+	
+	private void updateRolePerUserOnceResourcewithLinks(Role role, List<Role> roles) {
+		if (roles.contains(role)) {
+			role.add(linkTo(methodOn(RoleRestController.class).getAll()).slash(role.getId_role()).withSelfRel());
+			roles.remove(role);
+		}
+	}
+	
+	private void updateRoleResourcewithLinks(User user) {
+		user.getRole().add(
+				linkTo(methodOn(RoleRestController.class).getAll()).slash(user.getRole().getId_role()).withSelfRel());
+	}
+	
 	@RequestMapping(method = RequestMethod.OPTIONS)
 	public ResponseEntity<?> getSupportedMethods() {
 		return ResponseEntity.status(200).allow(HttpMethod.values()).build();
@@ -69,8 +101,12 @@ public class StatisticRestController {
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<Iterable<Statistic>> getAll() {
 		Iterable<Statistic> statistics = statisticRepo.findAll();
+		List<Role> roles = (List<Role>) roleRepo.findAll();
 		for (Statistic statistic : statistics) {
 			updateStatisticResourcewithLinks(statistic);
+			updatePlayerResourcewithLinks(statistic.getPlayer());
+			updateUserResourcewithLinks(statistic.getPlayer().getUser());
+			updateRolePerUserOnceResourcewithLinks(statistic.getPlayer().getUser().getRole(), roles);
 		}
 		return new ResponseEntity<Iterable<Statistic>>(statistics, HttpStatus.OK);
 	}
@@ -80,6 +116,9 @@ public class StatisticRestController {
 		Statistic statistic = statisticRepo.findOne(id);
 		if (statistic != null) {
 			updateStatisticResourcewithLinks(statistic);
+			updatePlayerResourcewithLinks(statistic.getPlayer());
+			updateUserResourcewithLinks(statistic.getPlayer().getUser());
+			updateRoleResourcewithLinks(statistic.getPlayer().getUser());
 			return new ResponseEntity<Statistic>(statistic, HttpStatus.OK);
 		} else
 			return new ResponseEntity<Statistic>(statistic, HttpStatus.NO_CONTENT);
@@ -90,8 +129,9 @@ public class StatisticRestController {
 			@PathVariable("playerId") String playerId) {
 		Player player = playerRepo.findById_PlayerAndId_StatisticCaseInsensitive(playerId, statisticId);
 		if (player != null) {
-			updateStatisticResourcewithLinks(player.getStatistic());
-			updatePlayerResourcewithLinks(player);
+			updatePlayerPerStatisticResourcewithLinks(player);
+			updateUserResourcewithLinks(player.getUser());
+			updateRoleResourcewithLinks(player.getUser());
 			return new ResponseEntity<Player>(player, HttpStatus.OK);
 		} else
 			return new ResponseEntity<Player>(player, HttpStatus.NO_CONTENT);

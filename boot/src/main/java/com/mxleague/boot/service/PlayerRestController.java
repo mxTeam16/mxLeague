@@ -40,7 +40,7 @@ public class PlayerRestController {
 	}
 
 	private void updateUserPerPlayerResourcewithLinks(User user) {
-		user.add(linkTo(methodOn(PlayerRestController.class).getAll()).slash(user.getId_user()).withSelfRel());
+		user.add(linkTo(methodOn(PlayerRestController.class).getAll()).slash(user.getPlayer().getId_player()).slash(user.getId_user()).withSelfRel());
 	}
 	
 	private void updateUserResourcewithLinks(User user) {
@@ -115,8 +115,8 @@ public class PlayerRestController {
 			@PathVariable("userId") String userId) {
 		User user = userRepo.findById_UserAndId_PlayerCaseInsensitive(userId, playerId);
 		if (user != null) {
-			updatePlayerResourcewithLinks(user.getPlayer());
 			updateUserPerPlayerResourcewithLinks(user);
+			updateRoleResourcewithLinks(user);
 			return new ResponseEntity<User>(user, HttpStatus.OK);
 		} else
 			return new ResponseEntity<User>(user, HttpStatus.NO_CONTENT);
