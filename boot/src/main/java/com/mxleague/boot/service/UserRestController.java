@@ -1,8 +1,5 @@
 package com.mxleague.boot.service;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,23 +26,6 @@ public class UserRestController {
 
 	@Autowired
 	UserRepo userRepo;
-
-	private void updateRolePerUserOnceResourcewithLinks(User user, List<Role> roles) {
-		Role role = user.getRole();
-		if (roles.contains(role)) {
-			role.add(linkTo(methodOn(RoleRestController.class).getAll()).slash(role.getId_role()).withSelfRel());
-			roles.remove(role);
-		}
-	}
-
-	private void updateUserResourcewithLinks(User user) {
-		user.add(linkTo(methodOn(UserRestController.class).getAll()).slash(user.getId_user()).withSelfRel());
-	}
-
-	private void updateRoleResourcewithLinks(User user) {
-		user.getRole().add(
-				linkTo(methodOn(RoleRestController.class).getAll()).slash(user.getRole().getId_role()).withSelfRel());
-	}
 
 	@RequestMapping(method = RequestMethod.OPTIONS)
 	public ResponseEntity<?> getSupportedMethods() {
@@ -74,7 +54,7 @@ public class UserRestController {
 		input.setId_user(id);
 		User newUser = userRepo.save(input);
 		if (exists)
-			return ResponseEntity.ok().body("User succesfully updated");
+			return ResponseEntity.ok().body("User successfully updated");
 		else
 			return ResponseEntity.status(201).location(ServletUriComponentsBuilder.fromCurrentContextPath()
 					.path("/rest/v1/users/{id}").buildAndExpand(newUser.getId_user()).toUri()).build();
@@ -85,8 +65,8 @@ public class UserRestController {
 		Iterable<User> users = userRepo.findAll();
 		List<Role> roles = (List<Role>) roleRepo.findAll();
 		for (User user : users) {
-			updateUserResourcewithLinks(user);
-			updateRolePerUserOnceResourcewithLinks(user, roles);
+			Link.updateUserResourcewithLinks(user);
+			Link.updateRolePerUserOnceResourcewithLinks(user.getRole(), roles);
 		}
 		return new ResponseEntity<Iterable<User>>(users, HttpStatus.OK);
 	}
@@ -95,8 +75,8 @@ public class UserRestController {
 	public ResponseEntity<?> getById(@PathVariable("id") String id) {
 		User user = userRepo.findOne(id);
 		if (user != null) {
-			updateUserResourcewithLinks(user);
-			updateRoleResourcewithLinks(user);
+			Link.updateUserResourcewithLinks(user);
+			Link.updateRoleResourcewithLinks(user.getRole());
 			return new ResponseEntity<User>(user, HttpStatus.OK);
 		} else
 			return new ResponseEntity<User>(user, HttpStatus.NO_CONTENT);
@@ -108,7 +88,7 @@ public class UserRestController {
 		User found = userRepo.findOne(id);
 		if (found != null) {
 			userRepo.delete(found);
-			return ResponseEntity.ok().body("User " + id + " succesfully deleted");
+			return ResponseEntity.ok().body("User " + id + " successfully deleted");
 		} else
 			return ResponseEntity.status(204).build();
 	}

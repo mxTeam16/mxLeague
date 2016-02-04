@@ -1,8 +1,5 @@
 package com.mxleague.boot.service;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,23 +27,6 @@ public class RoleRestController {
 	@Autowired
 	UserRepo userRepo;
 
-	private void updateRolePerUserOnceResourcewithLinks(Role role, List<Role> roles) {
-		if (roles.contains(role)) {
-			role.add(linkTo(methodOn(RoleRestController.class).getAll()).slash(role.getId_role()).withSelfRel());
-			roles.remove(role);
-		}
-	}
-
-	private void updateRoleResourcewithLinks(Role role) {
-		role.add(linkTo(methodOn(RoleRestController.class).getAll()).slash(role.getId_role()).withSelfRel());
-		role.add(linkTo(methodOn(RoleRestController.class).getUsersByRole(role.getId_role())).withRel("users"));
-	}
-
-	private void updateUserResourcewithLinks(User user) {
-		user.add(linkTo(methodOn(RoleRestController.class).getAll()).slash(user.getRole().getId_role()).slash("users")
-				.slash(user.getId_user()).withSelfRel());
-	}
-
 	@RequestMapping(method = RequestMethod.OPTIONS)
 	public ResponseEntity<?> getSupportedMethods() {
 		return ResponseEntity.status(200).allow(HttpMethod.values()).build();
@@ -68,7 +48,7 @@ public class RoleRestController {
 		input.setId_role(id);
 		Role newRole = roleRepo.save(input);
 		if (exists)
-			return ResponseEntity.ok().body("Role succesfully updated");
+			return ResponseEntity.ok().body("Role successfully updated");
 		else
 			return ResponseEntity.status(201).location(ServletUriComponentsBuilder.fromCurrentContextPath()
 					.path("/rest/v1/roles/{id}").buildAndExpand(newRole.getId_role()).toUri()).build();
@@ -78,7 +58,8 @@ public class RoleRestController {
 	public ResponseEntity<Iterable<Role>> getAll() {
 		Iterable<Role> roles = roleRepo.findAll();
 		for (Role role : roles) {
-			updateRoleResourcewithLinks(role);
+			Link.updateRoleResourcewithLinks(role);
+			Link.updateUsersPerRoleResourcewithLinks(role);
 		}
 		return new ResponseEntity<Iterable<Role>>(roles, HttpStatus.OK);
 	}
@@ -87,7 +68,8 @@ public class RoleRestController {
 	public ResponseEntity<?> getById(@PathVariable("id") String id) {
 		Role role = roleRepo.findOne(id);
 		if (role != null) {
-			updateRoleResourcewithLinks(role);
+			Link.updateRoleResourcewithLinks(role);
+			Link.updateUsersPerRoleResourcewithLinks(role);
 			return new ResponseEntity<Role>(role, HttpStatus.OK);
 		} else
 			return new ResponseEntity<Role>(role, HttpStatus.NO_CONTENT);
@@ -98,8 +80,8 @@ public class RoleRestController {
 		Iterable<User> users = userRepo.findById_RoleCaseInsensitive(id);
 		List<Role> roles = (List<Role>) roleRepo.findAll();
 		for (User user : users) {
-			updateUserResourcewithLinks(user);
-			updateRolePerUserOnceResourcewithLinks(user.getRole(), roles);
+			Link.updateUserResourcewithLinks(user);
+			Link.updateRolePerUserOnceResourcewithLinks(user.getRole(), roles);
 		}
 		return new ResponseEntity<Iterable<User>>(users, HttpStatus.OK);
 	}
@@ -108,7 +90,7 @@ public class RoleRestController {
 	public ResponseEntity<?> getEmployeesById(@PathVariable("roleId") String roleId,
 			@PathVariable("userId") String userId) {
 		User user = userRepo.findById_UserAndId_RoleCaseInsensitive(userId, roleId);
-		updateUserResourcewithLinks(user);
+		Link.updateUserResourcewithLinks(user);
 		return new ResponseEntity<User>(user, HttpStatus.OK);
 	}
 
@@ -117,7 +99,7 @@ public class RoleRestController {
 		Role found = roleRepo.findOne(id);
 		if (found != null) {
 			roleRepo.delete(found);
-			return ResponseEntity.ok().body("Role " + id + " succesfully deleted");
+			return ResponseEntity.ok().body("Role " + id + " successfully deleted");
 		} else
 			return ResponseEntity.status(204).build();
 	}

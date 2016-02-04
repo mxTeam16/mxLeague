@@ -1,8 +1,5 @@
 package com.mxleague.boot.service;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,33 +28,9 @@ public class PlayerRestController {
 
 	@Autowired
 	UserRepo userRepo;
-	
+
 	@Autowired
 	RoleRepo roleRepo;
-
-	private void updatePlayerResourcewithLinks(Player player) {
-		player.add(linkTo(methodOn(PlayerRestController.class).getAll()).slash(player.getId_player()).withSelfRel());
-	}
-
-	private void updateUserPerPlayerResourcewithLinks(User user) {
-		user.add(linkTo(methodOn(PlayerRestController.class).getAll()).slash(user.getPlayer().getId_player()).slash(user.getId_user()).withSelfRel());
-	}
-	
-	private void updateUserResourcewithLinks(User user) {
-		user.add(linkTo(methodOn(UserRestController.class).getAll()).slash(user.getId_user()).withSelfRel());
-	}
-	
-	private void updateRolePerUserOnceResourcewithLinks(Role role, List<Role> roles) {
-		if (roles.contains(role)) {
-			role.add(linkTo(methodOn(RoleRestController.class).getAll()).slash(role.getId_role()).withSelfRel());
-			roles.remove(role);
-		}
-	}
-	
-	private void updateRoleResourcewithLinks(User user) {
-		user.getRole().add(
-				linkTo(methodOn(RoleRestController.class).getAll()).slash(user.getRole().getId_role()).withSelfRel());
-	}
 
 	@RequestMapping(method = RequestMethod.OPTIONS)
 	public ResponseEntity<?> getSupportedMethods() {
@@ -80,7 +53,7 @@ public class PlayerRestController {
 		input.setId_player(id);
 		Player newPlayer = playerRepo.save(input);
 		if (exists)
-			return ResponseEntity.ok().body("Player succesfully updated");
+			return ResponseEntity.ok().body("Player successfully updated");
 		else
 			return ResponseEntity.status(201).location(ServletUriComponentsBuilder.fromCurrentContextPath()
 					.path("/rest/v1/players/{id}").buildAndExpand(newPlayer.getId_player()).toUri()).build();
@@ -91,9 +64,9 @@ public class PlayerRestController {
 		Iterable<Player> players = playerRepo.findAll();
 		List<Role> roles = (List<Role>) roleRepo.findAll();
 		for (Player player : players) {
-			updatePlayerResourcewithLinks(player);
-			updateUserResourcewithLinks(player.getUser());
-			updateRolePerUserOnceResourcewithLinks(player.getUser().getRole(), roles);
+			Link.updatePlayerResourcewithLinks(player);
+			Link.updateUserResourcewithLinks(player.getUser());
+			Link.updateRolePerUserOnceResourcewithLinks(player.getUser().getRole(), roles);
 		}
 		return new ResponseEntity<Iterable<Player>>(players, HttpStatus.OK);
 	}
@@ -102,9 +75,9 @@ public class PlayerRestController {
 	public ResponseEntity<Player> getById(@PathVariable("id") String id) {
 		Player player = playerRepo.findOne(id);
 		if (player != null) {
-			updatePlayerResourcewithLinks(player);
-			updateUserResourcewithLinks(player.getUser());
-			updateRoleResourcewithLinks(player.getUser());
+			Link.updatePlayerResourcewithLinks(player);
+			Link.updateUserResourcewithLinks(player.getUser());
+			Link.updateRoleResourcewithLinks(player.getUser().getRole());
 			return new ResponseEntity<Player>(player, HttpStatus.OK);
 		} else
 			return new ResponseEntity<Player>(player, HttpStatus.NO_CONTENT);
@@ -115,8 +88,8 @@ public class PlayerRestController {
 			@PathVariable("userId") String userId) {
 		User user = userRepo.findById_UserAndId_PlayerCaseInsensitive(userId, playerId);
 		if (user != null) {
-			updateUserPerPlayerResourcewithLinks(user);
-			updateRoleResourcewithLinks(user);
+			Link.updateUserPerPlayerResourcewithLinks(user);
+			Link.updateRoleResourcewithLinks(user.getRole());
 			return new ResponseEntity<User>(user, HttpStatus.OK);
 		} else
 			return new ResponseEntity<User>(user, HttpStatus.NO_CONTENT);
@@ -127,7 +100,7 @@ public class PlayerRestController {
 		Player found = playerRepo.findOne(id);
 		if (found != null) {
 			playerRepo.delete(found);
-			return ResponseEntity.ok().body("Player " + id + " succesfully deleted");
+			return ResponseEntity.ok().body("Player " + id + " successfully deleted");
 		} else
 			return ResponseEntity.status(204).build();
 	}

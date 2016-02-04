@@ -1,8 +1,5 @@
 package com.mxleague.boot.service;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,33 +28,9 @@ public class BoardRestController {
 
 	@Autowired
 	UserRepo userRepo;
-	
+
 	@Autowired
 	RoleRepo roleRepo;
-
-	private void updateBoardResourcewithLinks(Board member) {
-		member.add(linkTo(methodOn(BoardRestController.class).getAll()).slash(member.getId_board()).withSelfRel());
-	}
-
-	private void updateUserPerMemberOfBoardResourcewithLinks(User user) {
-		user.add(linkTo(methodOn(BoardRestController.class).getAll()).slash(user.getBoard().getId_board()).slash(user.getId_user()).withSelfRel());
-	}
-	
-	private void updateUserResourcewithLinks(User user) {
-		user.add(linkTo(methodOn(UserRestController.class).getAll()).slash(user.getId_user()).withSelfRel());
-	}
-	
-	private void updateRolePerUserOnceResourcewithLinks(Role role, List<Role> roles) {
-		if (roles.contains(role)) {
-			role.add(linkTo(methodOn(RoleRestController.class).getAll()).slash(role.getId_role()).withSelfRel());
-			roles.remove(role);
-		}
-	}
-	
-	private void updateRoleResourcewithLinks(User user) {
-		user.getRole().add(
-				linkTo(methodOn(RoleRestController.class).getAll()).slash(user.getRole().getId_role()).withSelfRel());
-	}
 
 	@RequestMapping(method = RequestMethod.OPTIONS)
 	public ResponseEntity<?> getSupportedMethods() {
@@ -83,7 +56,7 @@ public class BoardRestController {
 		input.setId_board(id);
 		Board newMember = boardRepo.save(input);
 		if (exists)
-			return ResponseEntity.ok().body("Member of Board succesfully updated");
+			return ResponseEntity.ok().body("Member of Board successfully updated");
 		else
 			return ResponseEntity.status(201).location(ServletUriComponentsBuilder.fromCurrentContextPath()
 					.path("/rest/v1/board/{id}").buildAndExpand(newMember.getId_board()).toUri()).build();
@@ -94,9 +67,9 @@ public class BoardRestController {
 		Iterable<Board> board = boardRepo.findAll();
 		List<Role> roles = (List<Role>) roleRepo.findAll();
 		for (Board member : board) {
-			updateBoardResourcewithLinks(member);
-			updateUserResourcewithLinks(member.getUser());
-			updateRolePerUserOnceResourcewithLinks(member.getUser().getRole(), roles);
+			Link.updateBoardResourcewithLinks(member);
+			Link.updateUserResourcewithLinks(member.getUser());
+			Link.updateRolePerUserOnceResourcewithLinks(member.getUser().getRole(), roles);
 		}
 		return new ResponseEntity<Iterable<Board>>(board, HttpStatus.OK);
 	}
@@ -105,9 +78,9 @@ public class BoardRestController {
 	public ResponseEntity<Board> getById(@PathVariable("id") String id) {
 		Board member = boardRepo.findOne(id);
 		if (member != null) {
-			updateBoardResourcewithLinks(member);
-			updateUserResourcewithLinks(member.getUser());
-			updateRoleResourcewithLinks(member.getUser());
+			Link.updateBoardResourcewithLinks(member);
+			Link.updateUserResourcewithLinks(member.getUser());
+			Link.updateRoleResourcewithLinks(member.getUser().getRole());
 			return new ResponseEntity<Board>(member, HttpStatus.OK);
 		} else
 			return new ResponseEntity<Board>(member, HttpStatus.NO_CONTENT);
@@ -118,8 +91,8 @@ public class BoardRestController {
 			@PathVariable("userId") String userId) {
 		User user = userRepo.findById_UserAndId_BoardCaseInsensitive(userId, boardId);
 		if (user != null) {
-			updateUserPerMemberOfBoardResourcewithLinks(user);
-			updateRoleResourcewithLinks(user);
+			Link.updateUserPerMemberOfBoardResourcewithLinks(user);
+			Link.updateRoleResourcewithLinks(user.getRole());
 			return new ResponseEntity<User>(user, HttpStatus.OK);
 		} else
 			return new ResponseEntity<User>(user, HttpStatus.NO_CONTENT);
@@ -130,7 +103,7 @@ public class BoardRestController {
 		Board found = boardRepo.findOne(id);
 		if (found != null) {
 			boardRepo.delete(found);
-			return ResponseEntity.ok().body("Member of Board " + id + " succesfully deleted");
+			return ResponseEntity.ok().body("Member of Board " + id + " successfully deleted");
 		} else
 			return ResponseEntity.status(204).build();
 	}
