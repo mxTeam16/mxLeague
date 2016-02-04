@@ -3,6 +3,8 @@ package com.mxleague.boot.service;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -15,9 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.mxleague.boot.domain.Transfer;
+import com.mxleague.boot.domain.User;
 import com.mxleague.boot.domain.Player;
+import com.mxleague.boot.domain.Role;
 import com.mxleague.boot.repo.TransferRepo;
+import com.mxleague.boot.repo.UserRepo;
 import com.mxleague.boot.repo.PlayerRepo;
+import com.mxleague.boot.repo.RoleRepo;
 
 @RestController
 @RequestMapping("/rest/v1/transfers")
@@ -27,14 +33,40 @@ public class TransferRestController {
 
 	@Autowired
 	PlayerRepo playerRepo;
+	
+	@Autowired
+	UserRepo userRepo;
+	
+	@Autowired
+	RoleRepo roleRepo;
 
 	private void updateTransferResourcewithLinks(Transfer transfer) {
 		transfer.add(linkTo(methodOn(TransferRestController.class).getAll()).slash(transfer.getId_transfer())
 				.withSelfRel());
 	}
 
+	private void updatePlayerPerTransferResourcewithLinks(Player player) {
+		player.add(linkTo(methodOn(TransferRestController.class).getAll()).slash(player.getTransfer().getId_transfer()).slash(player.getId_player()).withSelfRel());
+	}
+	
 	private void updatePlayerResourcewithLinks(Player player) {
-		player.add(linkTo(methodOn(TransferRestController.class).getAll()).slash(player.getId_player()).withSelfRel());
+		player.add(linkTo(methodOn(PlayerRestController.class).getAll()).slash(player.getId_player()).withSelfRel());
+	}
+	
+	private void updateUserResourcewithLinks(User user) {
+		user.add(linkTo(methodOn(UserRestController.class).getAll()).slash(user.getId_user()).withSelfRel());
+	}
+	
+	private void updateRolePerUserOnceResourcewithLinks(Role role, List<Role> roles) {
+		if (roles.contains(role)) {
+			role.add(linkTo(methodOn(RoleRestController.class).getAll()).slash(role.getId_role()).withSelfRel());
+			roles.remove(role);
+		}
+	}
+	
+	private void updateRoleResourcewithLinks(User user) {
+		user.getRole().add(
+				linkTo(methodOn(RoleRestController.class).getAll()).slash(user.getRole().getId_role()).withSelfRel());
 	}
 
 	@RequestMapping(method = RequestMethod.OPTIONS)
@@ -69,8 +101,12 @@ public class TransferRestController {
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<Iterable<Transfer>> getAll() {
 		Iterable<Transfer> transfers = transferRepo.findAll();
+		List<Role> roles = (List<Role>) roleRepo.findAll();
 		for (Transfer transfer : transfers) {
 			updateTransferResourcewithLinks(transfer);
+			updatePlayerResourcewithLinks(transfer.getPlayer());
+			updateUserResourcewithLinks(transfer.getPlayer().getUser());
+			updateRolePerUserOnceResourcewithLinks(transfer.getPlayer().getUser().getRole(), roles);
 		}
 		return new ResponseEntity<Iterable<Transfer>>(transfers, HttpStatus.OK);
 	}
@@ -80,6 +116,9 @@ public class TransferRestController {
 		Transfer transfer = transferRepo.findOne(id);
 		if (transfer != null) {
 			updateTransferResourcewithLinks(transfer);
+			updatePlayerResourcewithLinks(transfer.getPlayer());
+			updateUserResourcewithLinks(transfer.getPlayer().getUser());
+			updateRoleResourcewithLinks(transfer.getPlayer().getUser());
 			return new ResponseEntity<Transfer>(transfer, HttpStatus.OK);
 		} else
 			return new ResponseEntity<Transfer>(transfer, HttpStatus.NO_CONTENT);
@@ -90,8 +129,9 @@ public class TransferRestController {
 			@PathVariable("playerId") String playerId) {
 		Player player = playerRepo.findById_PlayerAndId_TransferCaseInsensitive(playerId, transferId);
 		if (player != null) {
-			updateTransferResourcewithLinks(player.getTransfer());
-			updatePlayerResourcewithLinks(player);
+			updatePlayerPerTransferResourcewithLinks(player);
+			updateUserResourcewithLinks(player.getUser());
+			updateRoleResourcewithLinks(player.getUser());
 			return new ResponseEntity<Player>(player, HttpStatus.OK);
 		} else
 			return new ResponseEntity<Player>(player, HttpStatus.NO_CONTENT);
