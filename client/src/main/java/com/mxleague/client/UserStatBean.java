@@ -28,15 +28,22 @@ public class UserStatBean implements Serializable {
 
 	public String login(String username, String pass) {
 		user = service.getLoginUser(username, pass);
-		data = service.getStatistics(username, pass);
-		service.linkStats(user, data);
+
 		if (user != null) {
+			data = service.getStatistics(username, pass);
+			service.linkStats(user, data);
 			return "success";
 		} else {
 			FacesContext.getCurrentInstance().addMessage(null,
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error - Login Failed", ""));
 			return "failure";
 		}
+	}
+	
+	public String logout(){
+		user = null;
+		data = null;
+		return "userPanel.xhtml";
 	}
 
 	public User getUser() {

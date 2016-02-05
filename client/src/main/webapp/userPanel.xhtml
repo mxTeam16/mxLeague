@@ -57,7 +57,7 @@
 			<h:outputText value="#{stats.user.player.status}"
 				style="font-weight:bold;" />
 			<br />
-			
+
 			<p:outputPanel rendered="#{stats.data ne null}">
 				<h1>Ranking</h1>
 			</p:outputPanel>
@@ -81,6 +81,12 @@
 					<h:outputText value="#{stat.goals}" />
 				</p:column>
 			</p:dataTable>
+			<p:commandButton ajax="false" value="Logout" id="f2Button"
+				rendered="#{stats.user ne null}" actionListener="#{stats.logout}"
+				update=":tableForm">
+			</p:commandButton>
+			<br />
+			<br />
 		</p:panel>
 	</h:form>
 

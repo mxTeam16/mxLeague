@@ -1,10 +1,10 @@
 package com.mxleague.client.services;
 
 import java.io.IOException;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -41,7 +41,7 @@ public class BasicAuthRestTemplate extends RestTemplate {
 		@Override
 		public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
 				throws IOException {
-			byte[] token = Base64.getEncoder().encode((this.username + ":" + this.password).getBytes());
+			byte[] token = Base64.encodeBase64((this.username + ":" + this.password).getBytes());
 			request.getHeaders().add("Authorization", "Basic " + new String(token));
 			return execution.execute(request, body);
 		}
