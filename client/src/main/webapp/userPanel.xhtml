@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<style type="text/css">
+.playerRow {
+	backround .color: #FDF1B6
+}
+</style>
+</h:head>
+<h:body>
+	<h1>User Panel</h1>
+	<h:form id="tableForm">
+		<p:panel id="loginPanel" widgetVar="loginWgt">
+			<h:outputText value="Username:" />
+			<p:inputText id="user" value="#{username}" required="true" />
+			<br />
+			<br />
+			<h:outputText value="Password:" />
+			<p:password id="pass" value="#{pass}" />
+			<br />
+			<br />
+			<p:commandButton value="Login" id="f1Button"
+				actionListener="#{stats.login(username,pass)}"
+				update=":tableForm:dataPanel,loginPanel">
+				<p:effect type="clip" event="onSuccess" for="loginPanel">
+					<f:param name="mode" value="'hide'" />
+				</p:effect>
+				<p:effect type="clip" event="onSuccess" for="dataPanel">
+					<f:param name="mode" value="'hide'" />
+				</p:effect>
+			</p:commandButton>
+			<p:messages id="loginMsg" showDetail="false" autoUpdate="true"
+				closable="true" />
+		</p:panel>
+		<br />
+		<br />
+
+		<p:panel widgetVar="dataWgt" id="dataPanel" rendered="#{user ne null}">
+			<h:outputText value="#{user.name}" />
+			<br />
+			<h:outputText value="#{user.player.position}" />
+			<br />
+			<h:outputText value="#{user.player.status}" />
+			<br />
+		</p:panel>
+
+		<p:dataTable widgetVar="scoreWgt" sortBy="#{stat.score}" var="stat"
+			id="scoreTable" value="#{stats.data}" rendered="#{data ne null}"
+			rowStyleClass="#{user.name eq stat.player.user.name ? 'userRow' : null}">
+			<p:column headerText="Name">
+				<h:outputText value="#{stat.player.user.name}" />
+			</p:column>
+
+			<p:column headerText="Score">
+				<h:outputText value="#{stat.score}" />
+			</p:column>
+
+			<p:column headerText="Matches Played">
+				<h:outputText value="#{stat.matchesplayed}" />
+			</p:column>
+
+			<p:column headerText="Goals">
+				<h:outputText value="#{stat.goals}" />
+			</p:column>
+		</p:dataTable>
+	</h:form>
+
+</h:body>
+</html>
