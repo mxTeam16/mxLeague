@@ -8,32 +8,32 @@
 
 <h:head>
 	<style type="text/css">
-.playerRow {
-	backround .color: #FDF1B6
+.userRow {
+	background-image: none !important;
+	color: #00BFFF !important;
+	font-weight: bold !important;
 }
 </style>
 </h:head>
 <h:body>
-	<h1>User Panel</h1>
+
 	<h:form id="tableForm">
-		<p:panel id="loginPanel" widgetVar="loginWgt">
-			<h:outputText value="Username:" />
+		<p:outputPanel rendered="#{stats.user eq null}">
+			<h1>Panel de Usuario</h1>
+		</p:outputPanel>
+		<p:panel id="loginPanel" widgetVar="loginWgt"
+			rendered="#{stats.user eq null}">
+
+			<h:outputText value="Usuario:" />
 			<p:inputText id="user" value="#{username}" required="true" />
 			<br />
 			<br />
-			<h:outputText value="Password:" />
+			<h:outputText value="Contraseña:" />
 			<p:password id="pass" value="#{pass}" />
 			<br />
 			<br />
 			<p:commandButton value="Login" id="f1Button"
-				actionListener="#{stats.login(username,pass)}"
-				update=":tableForm:dataPanel,loginPanel">
-				<p:effect type="clip" event="onSuccess" for="loginPanel">
-					<f:param name="mode" value="'hide'" />
-				</p:effect>
-				<p:effect type="clip" event="onSuccess" for="dataPanel">
-					<f:param name="mode" value="'hide'" />
-				</p:effect>
+				actionListener="#{stats.login(username,pass)}" update=":tableForm">
 			</p:commandButton>
 			<p:messages id="loginMsg" showDetail="false" autoUpdate="true"
 				closable="true" />
@@ -41,34 +41,47 @@
 		<br />
 		<br />
 
-		<p:panel widgetVar="dataWgt" id="dataPanel" rendered="#{user ne null}">
-			<h:outputText value="#{user.name}" />
+		<p:panel widgetVar="dataWgt" id="dataPanel"
+			rendered="#{stats.user ne null}">
+			<p:outputPanel>
+				<h1>Información del Jugador</h1>
+			</p:outputPanel>
+
+			<h:outputText value="#{stats.user.name}" style="font-weight:bold;" />
 			<br />
-			<h:outputText value="#{user.player.position}" />
+			<h:outputText value="Posición:" />
+			<h:outputText value="#{stats.user.player.position}"
+				style="font-weight:bold;" />
 			<br />
-			<h:outputText value="#{user.player.status}" />
+			<h:outputText value="Estado:" />
+			<h:outputText value="#{stats.user.player.status}"
+				style="font-weight:bold;" />
 			<br />
+			
+			<p:outputPanel rendered="#{stats.data ne null}">
+				<h1>Ranking</h1>
+			</p:outputPanel>
+			<p:dataTable widgetVar="scoreWgt" sortBy="#{stat.score}"
+				sortOrder="descending" var="stat" id="scoreTable"
+				value="#{stats.data}" rendered="#{stats.data ne null}"
+				rowStyleClass="#{stats.user.name eq stat.player.user.name ? 'userRow' : null}">
+				<p:column headerText="Nombre">
+					<h:outputText value="#{stat.player.user.name}" />
+				</p:column>
+
+				<p:column headerText="Puntuación">
+					<h:outputText value="#{stat.score}" />
+				</p:column>
+
+				<p:column headerText="Partidos Jugados">
+					<h:outputText value="#{stat.matchesplayed}" />
+				</p:column>
+
+				<p:column headerText="Goles">
+					<h:outputText value="#{stat.goals}" />
+				</p:column>
+			</p:dataTable>
 		</p:panel>
-
-		<p:dataTable widgetVar="scoreWgt" sortBy="#{stat.score}" var="stat"
-			id="scoreTable" value="#{stats.data}" rendered="#{data ne null}"
-			rowStyleClass="#{user.name eq stat.player.user.name ? 'userRow' : null}">
-			<p:column headerText="Name">
-				<h:outputText value="#{stat.player.user.name}" />
-			</p:column>
-
-			<p:column headerText="Score">
-				<h:outputText value="#{stat.score}" />
-			</p:column>
-
-			<p:column headerText="Matches Played">
-				<h:outputText value="#{stat.matchesplayed}" />
-			</p:column>
-
-			<p:column headerText="Goals">
-				<h:outputText value="#{stat.goals}" />
-			</p:column>
-		</p:dataTable>
 	</h:form>
 
 </h:body>

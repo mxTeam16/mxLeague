@@ -10,9 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.mxleague.client.services.PanelService;
 import com.mxleague.domain.Statistic;
 import com.mxleague.domain.User;
-
 
 @Component("stats")
 @Scope("session")
@@ -20,24 +20,25 @@ public class UserStatBean implements Serializable {
 
 	@Autowired
 	PanelService service;
-	
+
 	private User user;
 	private List<Statistic> data;
 
 	private static final long serialVersionUID = 1L;
-	
-	public String login(String username, String pass) {	
+
+	public String login(String username, String pass) {
 		user = service.getLoginUser(username, pass);
-		//data = service.getStatistics(username,pass);
-		if(user!=null){
+		data = service.getStatistics(username, pass);
+		service.linkStats(user, data);
+		if (user != null) {
 			return "success";
-		}else{
-			FacesContext.getCurrentInstance().
-			addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error - Login Failed", ""));
+		} else {
+			FacesContext.getCurrentInstance().addMessage(null,
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error - Login Failed", ""));
 			return "failure";
 		}
 	}
-	
+
 	public User getUser() {
 		return user;
 	}
@@ -53,7 +54,5 @@ public class UserStatBean implements Serializable {
 	public void setData(List<Statistic> data) {
 		this.data = data;
 	}
-	
-	
 
 }

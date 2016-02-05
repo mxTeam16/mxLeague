@@ -1,6 +1,7 @@
-package com.mxleague.client;
+package com.mxleague.client.services;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -20,30 +21,14 @@ import com.mxleague.domain.User;
 @Service
 
 public class PanelService {
-	
+
 	private static final Logger LOGGER = Logger.getLogger(PanelService.class.getName());
-	
+
 	@Autowired
 	LoadBalancerClient client;
-	
-	public User getLoginUser(String user, String pass) {
-		ServiceInstance instance = client.choose("first-service");
-		HttpResponse loginResponse = doLogin(user,pass);
-		int statusCode = loginResponse.getStatusLine().getStatusCode();
-		User userObject = null;
-		LOGGER.info("Status Code: " +statusCode);
-		if (statusCode == 200) {
-			RestTemplate template = new BasicAuthRestTemplate(user, pass);
-			userObject = template.getForObject(instance.getUri() + "rest/v1/users/"+user, User.class);
-		} else {
-			LOGGER.warning("Login failed:" +loginResponse.getStatusLine().toString());
-		}
-
-		return userObject;
-	}
 
 	private HttpResponse doLogin(String user, String pass) {
-		LOGGER.info("Login Credentials: " +user+":"+pass);
+		LOGGER.info("Login Credentials: " + user + ":" + pass);
 		ServiceInstance instance = client.choose("first-service");
 		String userpass = user + ":" + pass;
 		DefaultHttpClient httpclient = new DefaultHttpClient();
@@ -57,14 +42,39 @@ public class PanelService {
 			e.printStackTrace();
 		}
 		return response;
+	}	
+
+	public User getLoginUser(String user, String pass) {
+		ServiceInstance instance = client.choose("first-service");
+		HttpResponse loginResponse = doLogin(user, pass);
+		int statusCode = loginResponse.getStatusLine().getStatusCode();
+		User userObject = null;
+		LOGGER.info("Status Code: " + statusCode);
+		if (statusCode == 200) {
+			RestTemplate template = new BasicAuthRestTemplate(user, pass);
+			userObject = template.getForObject(instance.getUri() + "rest/v1/users/" + user, User.class);
+		} else {
+			LOGGER.warning("Login failed:" + loginResponse.getStatusLine().toString());
+		}
+
+		return userObject;
 	}
 
-	public List<Statistic> getStatistics(String user,String pass) {
+	public List<Statistic> getStatistics(String user, String pass) {
 		List<Statistic> statList = null;
 		ServiceInstance instance = client.choose("first-service");
 		RestTemplate template = new BasicAuthRestTemplate(user, pass);
-		statList = template.getForObject(instance.getUri() + "/rest/v1/statistics", List.class);
+		Statistic[] data = template.getForObject(instance.getUri() + "/rest/v1/statistics", Statistic[].class);
+		statList = Arrays.asList(data);
 		return statList;
+	}
+	
+	public void linkStats(User u,List<Statistic> data){
+		for (Statistic s : data) {
+			if(s.getPlayer().getUser().getId_user().equals(u.getId_user())){
+				u.setPlayer(s.getPlayer());
+			}
+		}
 	}
 
 }

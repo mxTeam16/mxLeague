@@ -1,4 +1,4 @@
-package com.mxleague.client;
+package com.mxleague.client.services;
 
 import java.io.IOException;
 import java.util.Base64;
