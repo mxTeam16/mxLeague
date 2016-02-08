@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.mxleague.client.services.PanelService;
+import com.mxleague.domain.Player;
 import com.mxleague.domain.Statistic;
 import com.mxleague.domain.User;
 
@@ -23,13 +24,16 @@ public class UserStatBean implements Serializable {
 
 	private User user;
 	private List<Statistic> data;
-
+	private List<Player> dataP;
+	
 	private static final long serialVersionUID = 1L;
 
 	public String login(String username, String pass) {
 		user = service.getLoginUser(username, pass);
 
 		if (user != null) {
+			dataP = service.getPlayers(username, pass);
+			service.linkPlayer(user, dataP);
 			data = service.getStatistics(username, pass);
 			service.linkStats(user, data);
 			return "success";

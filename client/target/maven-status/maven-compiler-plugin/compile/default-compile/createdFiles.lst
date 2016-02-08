@@ -1,0 +1,11 @@
+com\mxleague\client\services\PanelService.class
+com\mxleague\domain\Role.class
+com\mxleague\client\Main.class
+com\mxleague\client\services\BasicAuthRestTemplate.class
+com\mxleague\client\UserStatBean.class
+com\mxleague\domain\Transfer.class
+com\mxleague\domain\Statistic.class
+com\mxleague\domain\User.class
+com\mxleague\domain\Board.class
+com\mxleague\domain\Player.class
+com\mxleague\client\services\BasicAuthRestTemplate$BasicAuthorizationInterceptor.class

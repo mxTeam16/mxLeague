@@ -15,6 +15,7 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.mxleague.domain.Player;
 import com.mxleague.domain.Statistic;
 import com.mxleague.domain.User;
 
@@ -59,6 +60,15 @@ public class PanelService {
 
 		return userObject;
 	}
+	
+	public List<Player> getPlayers(String user, String pass) {
+		List<Player> playerList = null;
+		ServiceInstance instance = client.choose("first-service");
+		RestTemplate template = new BasicAuthRestTemplate(user, pass);
+		Player[] data = template.getForObject(instance.getUri() + "/rest/v1/players", Player[].class);
+		playerList = Arrays.asList(data);
+		return playerList;
+	}
 
 	public List<Statistic> getStatistics(String user, String pass) {
 		List<Statistic> statList = null;
@@ -67,6 +77,14 @@ public class PanelService {
 		Statistic[] data = template.getForObject(instance.getUri() + "/rest/v1/statistics", Statistic[].class);
 		statList = Arrays.asList(data);
 		return statList;
+	}
+	
+	public void linkPlayer(User u,List<Player> data){
+		for (Player p : data) {
+			if(p.getUser().getId_user().equals(u.getId_user())){
+				u.setPlayer(p);
+			}
+		}
 	}
 	
 	public void linkStats(User u,List<Statistic> data){
