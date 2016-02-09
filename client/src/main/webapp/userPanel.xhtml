@@ -19,16 +19,16 @@
 
 	<h:form id="tableForm">
 		<p:outputPanel rendered="#{stats.user eq null}">
-			<h1>Panel de Usuario</h1>
+			<h1>User Panel</h1>
 		</p:outputPanel>
 		<p:panel id="loginPanel" widgetVar="loginWgt"
 			rendered="#{stats.user eq null}">
 
-			<h:outputText value="Usuario:" />
+			<h:outputText value="User: " />
 			<p:inputText id="user" value="#{username}" required="true" />
 			<br />
 			<br />
-			<h:outputText value="Contraseña:" />
+			<h:outputText value="Password: " />
 			<p:password id="pass" value="#{pass}" />
 			<br />
 			<br />
@@ -44,16 +44,16 @@
 		<p:panel widgetVar="dataWgt" id="dataPanel"
 			rendered="#{stats.user ne null}">
 			<p:outputPanel>
-				<h1>Información del Jugador</h1>
+				<h1>Player data</h1>
 			</p:outputPanel>
 
 			<h:outputText value="#{stats.user.name}" style="font-weight:bold;" />
 			<br />
-			<h:outputText value="Posición:" />
+			<h:outputText value="Position:" />
 			<h:outputText value="#{stats.user.player.position}"
 				style="font-weight:bold;" />
 			<br />
-			<h:outputText value="Estado:" />
+			<h:outputText value="Status:" />
 			<h:outputText value="#{stats.user.player.status}"
 				style="font-weight:bold;" />
 			<br />
@@ -65,25 +65,25 @@
 				sortOrder="descending" var="stat" id="scoreTable"
 				value="#{stats.data}" rendered="#{stats.data ne null}"
 				rowStyleClass="#{stats.user.name eq stat.player.user.name ? 'userRow' : null}">
-				<p:column headerText="Nombre">
+				<p:column headerText="Name">
 					<h:outputText value="#{stat.player.user.name}" />
 				</p:column>
 
-				<p:column headerText="Puntuación">
+				<p:column headerText="Score">
 					<h:outputText value="#{stat.score}"
 						rendered="#{stats.modifiedStat ne stat}" />
 					<h:inputText value="#{stat.score}"
 						rendered="#{stats.modifiedStat eq stat}" />
 				</p:column>
 
-				<p:column headerText="Partidos Jugados">
+				<p:column headerText="Played matches">
 					<h:outputText value="#{stat.matchesplayed}"
 						rendered="#{stats.modifiedStat ne stat}" />
 					<h:inputText value="#{stat.matchesplayed}"
 						rendered="#{stats.modifiedStat eq stat}" />
 				</p:column>
 
-				<p:column headerText="Goles">
+				<p:column headerText="Goals">
 					<h:outputText value="#{stat.goals}"
 						rendered="#{stats.modifiedStat ne stat}" />
 					<h:inputText value="#{stat.goals}"
