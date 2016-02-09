@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -13,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.mxleague.domain.Player;
@@ -92,6 +96,17 @@ public class PanelService {
 			if(s.getPlayer().getUser().getId_user().equals(u.getId_user())){
 				u.setPlayer(s.getPlayer());
 			}
+		}
+	}
+	
+	public void saveStatistic(String user, String pass, Statistic s){
+		ServiceInstance instance = client.choose("first-service");
+		RestTemplate template = new BasicAuthRestTemplate(user, pass);
+		try {
+			template.put(instance.getUri() + "/rest/v1/statistics/" + s.getId_statistic(), s);
+		} catch(HttpClientErrorException e) {
+			FacesContext.getCurrentInstance().addMessage(null,
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error - Permision denied, user must be admin", ""));
 		}
 	}
 

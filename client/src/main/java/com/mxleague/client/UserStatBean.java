@@ -25,11 +25,18 @@ public class UserStatBean implements Serializable {
 	private User user;
 	private List<Statistic> data;
 	private List<Player> dataP;
+	private Statistic modifiedStat;
+	
+	private String username;
+	private String pass;
 	
 	private static final long serialVersionUID = 1L;
 
 	public String login(String username, String pass) {
 		user = service.getLoginUser(username, pass);
+		
+		this.username = username;
+		this.pass = pass;
 
 		if (user != null) {
 			dataP = service.getPlayers(username, pass);
@@ -47,7 +54,25 @@ public class UserStatBean implements Serializable {
 	public String logout(){
 		user = null;
 		data = null;
+		modifiedStat = null;
 		return "userPanel.xhtml";
+	}
+	
+	public void modify(Statistic s){
+		modifiedStat = s;
+	}
+	
+	public void save(){
+		service.saveStatistic(username, pass, modifiedStat);
+		modifiedStat = null;
+	}
+
+	public Statistic getModifiedStat() {
+		return modifiedStat;
+	}
+
+	public void setModifiedStat(Statistic modifiedStat) {
+		this.modifiedStat = modifiedStat;
 	}
 
 	public User getUser() {

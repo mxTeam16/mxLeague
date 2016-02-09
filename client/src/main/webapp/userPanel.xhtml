@@ -70,15 +70,37 @@
 				</p:column>
 
 				<p:column headerText="Puntuación">
-					<h:outputText value="#{stat.score}" />
+					<h:outputText value="#{stat.score}"
+						rendered="#{stats.modifiedStat ne stat}" />
+					<h:inputText value="#{stat.score}"
+						rendered="#{stats.modifiedStat eq stat}" />
 				</p:column>
 
 				<p:column headerText="Partidos Jugados">
-					<h:outputText value="#{stat.matchesplayed}" />
+					<h:outputText value="#{stat.matchesplayed}"
+						rendered="#{stats.modifiedStat ne stat}" />
+					<h:inputText value="#{stat.matchesplayed}"
+						rendered="#{stats.modifiedStat eq stat}" />
 				</p:column>
 
 				<p:column headerText="Goles">
-					<h:outputText value="#{stat.goals}" />
+					<h:outputText value="#{stat.goals}"
+						rendered="#{stats.modifiedStat ne stat}" />
+					<h:inputText value="#{stat.goals}"
+						rendered="#{stats.modifiedStat eq stat}" />
+				</p:column>
+
+
+
+				<p:column>
+					<p:commandButton ajax="false" value="Modify" id="f3Button"
+						actionListener="#{stats.modify(stat)}" update=":tableForm"
+						rendered="#{stats.modifiedStat ne stat}">
+					</p:commandButton>
+					<p:commandButton ajax="false" value="Save" id="f4Button"
+						actionListener="#{stats.save}" update=":tableForm"
+						rendered="#{stats.modifiedStat eq stat}">
+					</p:commandButton>
 				</p:column>
 			</p:dataTable>
 			<p:commandButton ajax="false" value="Logout" id="f2Button"
@@ -87,6 +109,8 @@
 			</p:commandButton>
 			<br />
 			<br />
+			<p:messages id="saveMsg" showDetail="false" autoUpdate="true"
+				closable="true" />
 		</p:panel>
 	</h:form>
 
