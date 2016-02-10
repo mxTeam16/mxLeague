@@ -92,7 +92,7 @@
 
 
 
-				<p:column>
+				<p:column rendered="#{stats.user.role.id_role eq 'admin'}">
 					<p:commandButton ajax="false" value="Modify" id="f3Button"
 						actionListener="#{stats.modify(stat)}" update=":tableForm"
 						rendered="#{stats.modifiedStat ne stat}">
