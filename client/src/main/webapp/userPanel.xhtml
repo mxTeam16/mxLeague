@@ -103,6 +103,32 @@
 					</p:commandButton>
 				</p:column>
 			</p:dataTable>
+			<!-- Transfers -->
+			<p:outputPanel rendered="#{stats.user.role.id_role eq 'admin'}">
+				<h1>Transfers</h1>
+			</p:outputPanel>
+			<p:dataTable sortBy="#{transfer.amount}"
+				sortOrder="descending" var="transfer" id="transferTable"
+				value="#{stats.dataTransfer}" rendered="#{stats.dataTransfer ne null}"
+				rowStyleClass="#{stats.user.name eq stat.player.user.name ? 'userRow' : null}">
+				<p:column headerText="Name">
+					<h:outputText value="#{transfer.player.user.name}" />
+				</p:column>
+
+				<p:column headerText="Amount">
+					<h:outputText value="#{transfer.amount}"/>
+				</p:column>
+
+				<p:column headerText="From">
+					<h:outputText value="#{transfer.teamfrom}"/>
+				</p:column>
+
+				<p:column headerText="To">
+					<h:outputText value="#{transfer.teamto}"/>
+				</p:column>
+			</p:dataTable>
+			<br />
+			<br />
 			<p:commandButton ajax="false" value="Logout" id="f2Button"
 				rendered="#{stats.user ne null}" actionListener="#{stats.logout}"
 				update=":tableForm">

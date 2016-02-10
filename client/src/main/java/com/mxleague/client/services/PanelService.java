@@ -21,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.mxleague.domain.Player;
 import com.mxleague.domain.Statistic;
+import com.mxleague.domain.Transfer;
 import com.mxleague.domain.User;
 
 @Service
@@ -83,6 +84,15 @@ public class PanelService {
 		return statList;
 	}
 	
+	public List<Transfer> getTransfers(String user, String pass) {
+		List<Transfer> transferList = null;
+		ServiceInstance instance = client.choose("first-service");
+		RestTemplate template = new BasicAuthRestTemplate(user, pass);
+		Transfer[] data = template.getForObject(instance.getUri() + "/rest/v1/transfers", Transfer[].class);
+		transferList = Arrays.asList(data);
+		return transferList;
+	}
+	
 	public void linkPlayer(User u,List<Player> data){
 		for (Player p : data) {
 			if(p.getUser().getId_user().equals(u.getId_user())){
@@ -99,6 +109,14 @@ public class PanelService {
 		}
 	}
 	
+	public void linkTransfer(User u,List<Transfer> data){
+		for (Transfer t : data) {
+			if(t.getPlayer().getUser().getId_user().equals(u.getId_user())){
+				u.setPlayer(t.getPlayer());
+			}
+		}
+	}
+	
 	public void saveStatistic(String user, String pass, Statistic s){
 		ServiceInstance instance = client.choose("first-service");
 		RestTemplate template = new BasicAuthRestTemplate(user, pass);
@@ -109,5 +127,6 @@ public class PanelService {
 					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error - Permision denied, user must be admin", ""));
 		}
 	}
+	
 
 }

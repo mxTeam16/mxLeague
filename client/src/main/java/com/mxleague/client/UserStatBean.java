@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import com.mxleague.client.services.PanelService;
 import com.mxleague.domain.Player;
 import com.mxleague.domain.Statistic;
+import com.mxleague.domain.Transfer;
 import com.mxleague.domain.User;
 
 @Component("stats")
@@ -24,6 +25,7 @@ public class UserStatBean implements Serializable {
 
 	private User user;
 	private List<Statistic> data;
+	private List<Transfer> dataTransfer;
 	private List<Player> dataP;
 	private Statistic modifiedStat;
 	
@@ -43,6 +45,11 @@ public class UserStatBean implements Serializable {
 			service.linkPlayer(user, dataP);
 			data = service.getStatistics(username, pass);
 			service.linkStats(user, data);
+			if(user.getRole().getId_role().equals("admin")){
+				
+				dataTransfer = service.getTransfers(username, pass);
+				service.linkTransfer(user, dataTransfer);
+			}
 			return "success";
 		} else {
 			FacesContext.getCurrentInstance().addMessage(null,
@@ -54,6 +61,7 @@ public class UserStatBean implements Serializable {
 	public String logout(){
 		user = null;
 		data = null;
+		dataTransfer = null;
 		modifiedStat = null;
 		return "userPanel.xhtml";
 	}
@@ -91,4 +99,13 @@ public class UserStatBean implements Serializable {
 		this.data = data;
 	}
 
+	public List<Transfer> getDataTransfer() {
+		return dataTransfer;
+	}
+
+	public void setDataTransfer(List<Transfer> dataTransfer) {
+		this.dataTransfer = dataTransfer;
+	}
+	
+	
 }
